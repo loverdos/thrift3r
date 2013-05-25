@@ -18,12 +18,12 @@ package com.ckkloverdos.thrift3r
 package codec
 
 import com.ckkloverdos.thrift3r.JType
+import com.ckkloverdos.thrift3r.codec.misc.ClassCodec
 import com.ckkloverdos.thrift3r.codec.numericref.{ScalaBigDecimalCodec, ScalaBigIntCodec, JavaBigDecimalCodec, JavaBigIntegerCodec}
-import com.ckkloverdos.thrift3r.codec.primitive.{LongCodec, ShortCodec, ByteCodec, DoubleCodec, IntCodec}
-import com.ckkloverdos.thrift3r.codec.primitiveref.{DoubleRefCodec, LongRefCodec, IntRefCodec, ByteRefCodec, ShortRefCodec}
+import com.ckkloverdos.thrift3r.codec.primitive.{BooleanCodec, LongCodec, ShortCodec, ByteCodec, DoubleCodec, IntCodec}
+import com.ckkloverdos.thrift3r.codec.primitiveref.{BooleanRefCodec, DoubleRefCodec, LongRefCodec, IntRefCodec, ByteRefCodec, ShortRefCodec}
 import com.ckkloverdos.thrift3r.codec.stdref.StringCodec
 import java.math.{RoundingMode, MathContext}
-import com.ckkloverdos.thrift3r.codec.misc.ClassCodec
 
 /**
  *
@@ -37,6 +37,7 @@ object Codecs {
     codecs.map(c ⇒ (c.jvmType, c)).toMap
 
   final val PrimitiveCodecsSet = Set[Codec[_]](
+    BooleanCodec,
     ByteCodec,
     ShortCodec,
     IntCodec,
@@ -47,6 +48,7 @@ object Codecs {
   final val PrimitiveCodecs: Map[JType, Codec[_]] = typeMapOfCodecSet(PrimitiveCodecsSet)
 
   final val PrimitiveRefCodecsSet = Set[Codec[_]](
+    BooleanRefCodec,
     ByteRefCodec,
     ShortRefCodec,
     IntRefCodec,
