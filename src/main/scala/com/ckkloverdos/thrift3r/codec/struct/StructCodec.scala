@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.codec.struct
+package com.ckkloverdos.thrift3r
+package codec.struct
 
 import com.ckkloverdos.thrift3r.Thrift3rHelpers.valueAndTypeStr
 import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
 import com.ckkloverdos.thrift3r.descriptor.StructDescriptor
-import com.ckkloverdos.thrift3r.{Thrift3r, TTypeEnum}
 import com.google.common.reflect.TypeToken
 import org.apache.thrift.protocol.{TField, TProtocol}
 import scala.annotation.tailrec
@@ -37,8 +37,12 @@ case class StructCodec[T](
     val fieldType = fieldDescr.jvmType
     val fieldCodec = thrifter.codecOfType(fieldType).asInstanceOf[Codec[Any]]
     val tfield = new TField(fieldDescr.name, fieldCodec.tType, fieldId)
-    (fieldId, (fieldCodec, tfield))
+    val result = (fieldId, (fieldCodec, tfield))
+//    println("!! codecAndFieldById: %s".format(result))
+    result
   }
+
+
 
   /**
    * The supported [[com.ckkloverdos.thrift3r.TTypeEnum]].
@@ -48,8 +52,8 @@ case class StructCodec[T](
   final def typeToken = descriptor.typeToken.asInstanceOf[TypeToken[T]]
 
   final def encode(protocol: TProtocol, value: T) {
-    println("let encode %s (%s) =".format(protocol, valueAndTypeStr(value)))
-    val arity = descriptor.arity
+//    println("let encode %s (%s) =".format(protocol, valueAndTypeStr(value)))
+    val arity = descriptor.arity.toShort
 
     @tailrec def encodeFields(id: Short) {
       if(id >= arity) {return}
@@ -58,13 +62,13 @@ case class StructCodec[T](
       val fieldValue = fieldDescr.getter(value.asInstanceOf[AnyRef])
       val (fieldCodec, tfield) = codecAndFieldById(id)
 
-      println("  encode (%s) %s::%s, value=(%s), codec=%s".format(
-        id,
-        descriptor.jvmClass.getSimpleName,
-        fieldDescr.name,
-        valueAndTypeStr(fieldValue),
-        fieldCodec
-      ))
+//      println("  encode (%s) %s::%s, value=(%s), codec=%s".format(
+//        id,
+//        descriptor.jvmClass.getSimpleName,
+//        fieldDescr.name,
+//        valueAndTypeStr(fieldValue),
+//        fieldCodec
+//      ))
 
       try {
         protocol.writeFieldBegin(tfield)
@@ -93,7 +97,7 @@ case class StructCodec[T](
 
   final def decode(protocol: TProtocol) = {
     val arity = descriptor.arity
-    println("let decode %s = (->%s/%s)".format(protocol, descriptor.jvmType, arity))
+//    println("let decode %s = (->%s/%s)".format(protocol, descriptor.jvmType, arity))
     val params = new Array[AnyRef](arity)
 
     @tailrec def decodeFields(i: Short) {
@@ -102,12 +106,12 @@ case class StructCodec[T](
       val (fieldCodec, tfield) = codecAndFieldById(i)
 
       val fieldDescr = descriptor.fields(i)
-      println("  let decode (%s) %s::%s, codec=%s = ".format(
-        i,
-        descriptor.jvmClass.getSimpleName,
-        fieldDescr.name,
-        fieldCodec
-      ))
+//      println("  let decode (%s) %s::%s, codec=%s = ".format(
+//        i,
+//        descriptor.jvmClass.getSimpleName,
+//        fieldDescr.name,
+//        fieldCodec
+//      ))
 
       try {
         protocol.readFieldBegin()
@@ -115,7 +119,7 @@ case class StructCodec[T](
         protocol.readFieldEnd()
         params(i) = fieldValue.asInstanceOf[AnyRef]
 
-        println("    (%s)".format(valueAndTypeStr(fieldValue)))
+//        println("    (%s)".format(valueAndTypeStr(fieldValue)))
       }
       catch {
         case e: Throwable ⇒
@@ -137,7 +141,7 @@ case class StructCodec[T](
     protocol.readStructEnd()
 
     val struct = descriptor.construct(params)
-    println("  (%s)".format(valueAndTypeStr(struct)))
+//    println("  (%s)".format(valueAndTypeStr(struct)))
     struct.asInstanceOf[T]
   }
 

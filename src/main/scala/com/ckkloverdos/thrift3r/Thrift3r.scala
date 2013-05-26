@@ -16,14 +16,16 @@
 
 package com.ckkloverdos.thrift3r
 
-import scala.collection.{Set ⇒ CSet, Seq ⇒ CSeq, Map ⇒ CMap, GenMap, GenTraversable, immutable}
 import com.ckkloverdos.thrift3r.Thrift3rHelpers.{getterOf, defaultProtocolFor}
 import com.ckkloverdos.thrift3r.codec.collection.{ScalaMapCollectionCodec, ScalaNonMapCollectionCodec}
+import com.ckkloverdos.thrift3r.codec.enumeration.EnumCodec
+import com.ckkloverdos.thrift3r.codec.misc.OptionCodec
 import com.ckkloverdos.thrift3r.codec.struct.StructCodec
 import com.ckkloverdos.thrift3r.codec.{Codecs, Codec}
-import com.ckkloverdos.thrift3r.collection.builder.{ScalaOrderedMapBuilderFactory, CollectionBuilderFactory}
+import com.ckkloverdos.thrift3r.collection.builder.CollectionBuilderFactory
 import com.ckkloverdos.thrift3r.collection.descriptor.{ScalaDescriptor, CollectionDescriptor}
 import com.ckkloverdos.thrift3r.collection.generics.ScalaGenerics
+import com.ckkloverdos.thrift3r.collection.ordering.{ScalaCollectionOrdering, ScalaOrderings, CollectionOrdering}
 import com.ckkloverdos.thrift3r.descriptor.{StructDescriptor, FieldDescriptor}
 import com.google.common.cache.{CacheLoader, CacheBuilder, LoadingCache}
 import com.google.common.reflect.TypeToken
@@ -32,8 +34,7 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream, Output
 import java.lang.reflect.Constructor
 import org.apache.thrift.protocol.TProtocol
 import org.apache.thrift.transport.{TIOStreamTransport, TTransport}
-import com.ckkloverdos.thrift3r.collection.ordering.{ScalaCollectionOrdering, ScalaOrderings, CollectionOrdering}
-import com.ckkloverdos.thrift3r.codec.misc.OptionCodec
+import scala.collection.{Set ⇒ CSet, Seq ⇒ CSeq, Map ⇒ CMap, GenMap, GenTraversable, immutable}
 
 /**
  *
@@ -51,7 +52,7 @@ case class Thrift3r(
 ) {
 
   protected val codecCache: LoadingCache[JType, Codec[_]] = CacheBuilder.newBuilder().build(
-    new CacheLoader[JType, Codec[_]] { def load(javaType: JType) = codecOf0(javaType) }
+    new CacheLoader[JType, Codec[_]] { def load(javaType: JType) = codecOf0(javaType, Nil) }
   )
 
   val KnownCodecs = Codecs.StdNumericRefCodecs ++ userCodecs ++ Codecs.genFixedCodecs(loader)
@@ -69,6 +70,15 @@ case class Thrift3r(
 
   def codecOfClass[T](jvmClass: Class[T]): Codec[T] =
     codecOfType(jvmClass).asInstanceOf[Codec[T]]
+
+  protected def codecOfOption(
+    typeToken: TypeToken[_],
+    elementCodec: Codec[_]
+  ): Codec[_] = OptionCodec(typeToken.asInstanceOf[TypeToken[Option[Any]]], elementCodec.asInstanceOf[Codec[Any]])
+
+  protected def codecOfEnum[E <: Enum[_]](
+    enumClass: Class[E]
+  ): Codec[_] = EnumCodec(enumClass)
 
   protected def codecOfSeq(
     typeToken: TypeToken[_],
@@ -163,9 +173,15 @@ case class Thrift3r(
     }
   }
 
-  protected def codecOf0(jvmType: JType): Codec[_] = {
-    val typeToken = TypeToken.of(jvmType)
+  protected def codecOf0(jvmType: JType, typeStack: List[JType]): Codec[_] = {
+    val typeToken = typeTokenOfType(jvmType)
     val jvmClass = typeToken.getRawType
+
+    if(jvmClass == classOf[java.lang.Object]) {
+      throw new Exception("Requested codec for java.lang.Object. " +
+        "If you do not explicitly use it, make sure your Scala containers do not use primitive types. " +
+        "The offending type sequence is: %s".format((jvmType :: typeStack).reverse.mkString("[", " -> ", "]")))
+    }
 
     val codec = KnownCodecs.get(jvmClass) match {
       case Some(codec) ⇒
@@ -178,14 +194,14 @@ case class Thrift3r(
         if(classOf[CSeq[_]].isAssignableFrom(jvmClass)) {
           // LIST
           val elementJVMType = ScalaGenerics.elementTypeOfSeq(jvmType)
-          val elementCodec = codecOf0(elementJVMType)
+          val elementCodec = codecOf0(elementJVMType, jvmType :: typeStack)
 
           codecOfSeq(typeToken, elementCodec)
         }
         else if(classOf[CSet[_]].isAssignableFrom(jvmClass)) {
           // SET
           val elementJVMType = ScalaGenerics.elementTypeOfSet(jvmType)
-          val elementCodec = codecOf0(elementJVMType)
+          val elementCodec = codecOf0(elementJVMType, jvmType :: typeStack)
 
           codecOfSet(typeToken, elementCodec)
         }
@@ -193,20 +209,21 @@ case class Thrift3r(
           // LIST
           val mapKeyJVMType = ScalaGenerics.keyTypeOfMap(jvmType)
           val mapValueJVMType = ScalaGenerics.valueTypeOfMap(jvmType)
-          val keyCodec = codecOf0(mapKeyJVMType)
-          val valueCodec = codecOf0(mapValueJVMType)
+          val keyCodec = codecOf0(mapKeyJVMType, jvmType :: typeStack)
+          val valueCodec = codecOf0(mapValueJVMType, jvmType :: typeStack)
 
           codecOfMap(typeToken, keyCodec, valueCodec)
         }
         else if(classOf[Option[_]].isAssignableFrom(jvmClass)) {
           // SET for Option[T]
           val elementJVMType = ScalaGenerics.elementTypeOfOption(jvmType)
-          val elementCodec = codecOf0(elementJVMType)
+          val elementCodec = codecOf0(elementJVMType, jvmType :: typeStack)
 
-          OptionCodec(
-            typeToken.asInstanceOf[TypeToken[Option[Any]]],
-            elementCodec.asInstanceOf[Codec[Any]]
-          )
+          codecOfOption(typeToken, elementCodec)
+        }
+        // else if Java Collections ...
+        else if(classOf[Enum[_]].isAssignableFrom(jvmClass)) {
+          codecOfEnum(jvmClass.asInstanceOf[Class[Enum[_]]])
         }
         else {
           // last resort. It must be a user-defined class
@@ -214,14 +231,14 @@ case class Thrift3r(
         }
     }
 
-    println("let codecOf (%s) = %s".format(jvmClass, codec))
+//    println("let codecOf (%s) = %s".format(jvmClass, codec))
     codec
   }
 
   def structDescriptorOf(jvmType: JType) = {
-    val javaTypeToken = TypeToken.of(jvmType)
+    val javaTypeToken = typeTokenOfType(jvmType)
     val jvmClass = javaTypeToken.getRawType
-    println("let structDescriptorOf (%s) =".format(jvmClass))
+//    println("let structDescriptorOf (%s) =".format(jvmClass))
 
     // If there are more than one constructors, pick the longest
     val (_, constructorOpt) = jvmClass.getConstructors.foldLeft[(Int, Option[Constructor[_]])]((-1, None)) {
@@ -245,7 +262,7 @@ case class Thrift3r(
         throw new IllegalArgumentException("No constructor found for %s".format(jvmType))
 
       case Some(constructor) ⇒
-        println("  let constructor =")
+//        println("  let constructor =")
         val fieldTypes = constructor.getGenericParameterTypes
 
         for {
@@ -256,7 +273,7 @@ case class Thrift3r(
             }
         } {
           val fieldType = fieldTypes(fieldIndex)
-          val fieldTypeToken = typeTokenOf(fieldType)
+          val fieldTypeToken = typeTokenOfType(fieldType)
           val fieldGetter = getterOf(jvmClass, fieldName, fieldType)
 
           val fieldDescr = FieldDescriptor(
@@ -267,11 +284,11 @@ case class Thrift3r(
             fieldGetter
           )
 
-          println("    let fieldDescr = %s".format(fieldDescr))
+//          println("    let fieldDescr = %s".format(fieldDescr))
 
           fieldMap += fieldIndex.toShort → fieldDescr
         }
-        println("    %s".format(constructor))
+//        println("    %s".format(constructor))
 
         StructDescriptor(
           name,
@@ -282,7 +299,7 @@ case class Thrift3r(
         )
     }
 
-    println("  %s".format(descriptor))
+//    println("  %s".format(descriptor))
 
     descriptor
   }

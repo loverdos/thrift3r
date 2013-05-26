@@ -14,29 +14,10 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r
-package codec
-package misc
-
-import com.ckkloverdos.thrift3r.TTypeEnum
-import org.apache.thrift.protocol.TProtocol
-import com.google.common.reflect.TypeToken
+package com.ckkloverdos.thrift3r.tests.enumeration
 
 /**
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case class ClassCodec(loader: ClassLoader) extends Codec[JClass]{
-  def tTypeEnum = TTypeEnum.STRING
-
-  def typeToken = typeTokenOfClass(classOf[JClass]).asInstanceOf[TypeToken[JClass]]
-
-  def encode(protocol: TProtocol, value: JClass) {
-    protocol.writeString(value.getName)
-  }
-
-  def decode(protocol: TProtocol) = {
-    val name = protocol.readString()
-    loader.loadClass(name)
-  }
-}
+case class BeanEnum(fromDay: Days, toDay: Days)

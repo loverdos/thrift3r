@@ -25,24 +25,22 @@ import org.apache.thrift.protocol.TProtocol
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case object DoubleRefCodec extends Codec[java.lang.Double] with CodecToString {
+case object CharRefCodec extends Codec[java.lang.Character] with CodecToString {
+  final def tTypeEnum = TTypeEnum.INT32
 
-  /**
-   * The supported [[com.ckkloverdos.thrift3r.TTypeEnum]],
-   * which is [[com.ckkloverdos.thrift3r.TTypeEnum#FLOAT64]].
-   */
-  final def tTypeEnum = TTypeEnum.FLOAT64
+  final def typeToken = typeTokenOfClass(CharRefClass)
 
-  final def typeToken = typeTokenOfClass(DoubleRefClass)
-
-  final def encode(protocol: TProtocol, value: java.lang.Double) {
-    val doubleValue = value match {
-      case null ⇒ 0.0
-      case _    ⇒ value.doubleValue()
+  final def encode(protocol: TProtocol, value: java.lang.Character) {
+    val intValue = value match {
+      case null ⇒ 0
+      case _ ⇒ value.charValue().toInt
     }
 
-    protocol.writeDouble(doubleValue)
+    protocol.writeI32(intValue)
   }
 
-  final def decode(protocol: TProtocol) = java.lang.Double.valueOf(protocol.readDouble())
+  final def decode(protocol: TProtocol) = {
+    val intValue = protocol.readI32()
+    java.lang.Character.valueOf(intValue.toChar)
+  }
 }

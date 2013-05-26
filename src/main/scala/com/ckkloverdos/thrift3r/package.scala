@@ -23,26 +23,41 @@ import com.google.common.reflect.{TypeParameter, TypeToken}
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 package object thrift3r {
+  def println(x: Any) { Predef.println(x) }
+
   type JType = java.lang.reflect.Type
   type JClass = Class[_]
 
+  type ByteRef = java.lang.Byte
+  type BooleanRef = java.lang.Boolean
+  type CharRef = java.lang.Character
+  type ShortRef = java.lang.Short
   type IntRef = java.lang.Integer
+  type LongRef = java.lang.Long
+  type FloatRef = java.lang.Float
+  type DoubleRef = java.lang.Double
 
   @inline final val ByteClass = classOf[Byte]
-  @inline final val ByteRefClass = classOf[java.lang.Byte]
+  @inline final val ByteRefClass = classOf[ByteRef]
+  @inline final val BooleanClass = classOf[Boolean]
+  @inline final val BooleanRefClass = classOf[BooleanRef]
+  @inline final val CharClass = classOf[Char]
+  @inline final val CharRefClass = classOf[CharRef]
   @inline final val ShortClass = classOf[Short]
-  @inline final val ShortRefClass = classOf[java.lang.Short]
+  @inline final val ShortRefClass = classOf[ShortRef]
   @inline final val IntClass = classOf[Int]
-  @inline final val IntRefClass = classOf[java.lang.Integer]
+  @inline final val IntRefClass = classOf[IntRef]
   @inline final val LongClass = classOf[Long]
-  @inline final val LongRefClass = classOf[java.lang.Long]
+  @inline final val LongRefClass = classOf[LongRef]
+  @inline final val FloatClass = classOf[Float]
+  @inline final val FloatRefClass = classOf[FloatRef]
   @inline final val DoubleClass = classOf[Double]
-  @inline final val DoubleRefClass = classOf[java.lang.Double]
+  @inline final val DoubleRefClass = classOf[DoubleRef]
   @inline final val StringClass = classOf[String]
 
-  @inline final def typeTokenOf[A](jvmClass: Class[A]): TypeToken[A] = TypeToken.of(jvmClass)
+  @inline final def typeTokenOfClass[A](jvmClass: Class[A]): TypeToken[A] = TypeToken.of(jvmClass)
 
-  @inline final def typeTokenOf(jvmType: JType): TypeToken[_] = TypeToken.of(jvmType)
+  @inline final def typeTokenOfType(jvmType: JType): TypeToken[_] = TypeToken.of(jvmType)
 
   @inline final def jvmClassOf[T](typeToken: TypeToken[T]): Class[T] = typeToken.getRawType.asInstanceOf[Class[T]]
 
@@ -50,5 +65,5 @@ package object thrift3r {
 
   @inline final def typeParameterOf[A] = new TypeParameter[A] {}
 
-  @inline final def jvmTypeOf[A](jvmClass: Class[A]): JType = typeTokenOf(jvmClass).getType
+  @inline final def jvmTypeOf[A](jvmClass: Class[A]): JType = typeTokenOfClass(jvmClass).getType
 }

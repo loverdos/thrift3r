@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.tests.seq
+package com.ckkloverdos.thrift3r.tests.primitive
 
 import com.ckkloverdos.thrift3r.tests.BaseFixture
 import org.junit.Test
@@ -23,8 +23,24 @@ import org.junit.Test
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-class ScalaSeqTest extends BaseFixture {
-  @Test def testC() { good(BeanCSeq(collection.Seq("One", "Two"))) }
-  @Test def testI() { good(BeanCSeq(collection.immutable.Seq("One", "Two"))) }
-  @Test def testM() { good(BeanCSeq(collection.mutable.Seq("One", "Two"))) }
+class PrimitiveTest extends BaseFixture {
+  @Test def testByte() { good(BeanByte(1.toByte)) }
+
+  @Test def testBooleanT() { good(BeanBoolean(true)) }
+
+  @Test def testBooleanF() { good(BeanBoolean(false)) }
+
+  @Test def testChar() { good(BeanChar('Y')) }
+
+  @Test def testShort() { good(BeanShort(1.toShort)) }
+
+  @Test def testInt() { good(BeanInt(1)) }
+
+  @Test def testLong() { good(BeanLong(1L)) }
+
+  @Test def testFloat() { good(BeanFloat(1.1.toFloat)) }
+
+  @Test def testDouble() { good(BeanDouble(1.1)) }
+
+  @Test def testFull() { good(BeanFull(1.toByte, true, 'c', 2.toShort, 3, 4.toLong, 5.0.toFloat, 6.0)) }
 }

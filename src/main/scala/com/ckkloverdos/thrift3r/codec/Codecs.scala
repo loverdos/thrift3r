@@ -17,11 +17,10 @@
 package com.ckkloverdos.thrift3r
 package codec
 
-import com.ckkloverdos.thrift3r.JType
 import com.ckkloverdos.thrift3r.codec.misc.ClassCodec
 import com.ckkloverdos.thrift3r.codec.numericref.{ScalaBigDecimalCodec, ScalaBigIntCodec, JavaBigDecimalCodec, JavaBigIntegerCodec}
-import com.ckkloverdos.thrift3r.codec.primitive.{BooleanCodec, LongCodec, ShortCodec, ByteCodec, DoubleCodec, IntCodec}
-import com.ckkloverdos.thrift3r.codec.primitiveref.{BooleanRefCodec, DoubleRefCodec, LongRefCodec, IntRefCodec, ByteRefCodec, ShortRefCodec}
+import com.ckkloverdos.thrift3r.codec.primitive.{FloatCodec, CharCodec, BooleanCodec, LongCodec, ShortCodec, ByteCodec, DoubleCodec, IntCodec}
+import com.ckkloverdos.thrift3r.codec.primitiveref.{FloatRefCodec, CharRefCodec, BooleanRefCodec, DoubleRefCodec, LongRefCodec, IntRefCodec, ByteRefCodec, ShortRefCodec}
 import com.ckkloverdos.thrift3r.codec.stdref.StringCodec
 import java.math.{RoundingMode, MathContext}
 
@@ -33,30 +32,38 @@ object Codecs {
   final val StdRadix = 10
   final val StdMathContext = new MathContext(26, RoundingMode.HALF_UP)
 
-  @inline final def typeMapOfCodecSet(codecs: Set[Codec[_]]): Map[JType, Codec[_]] =
-    codecs.map(c ⇒ (c.jvmType, c)).toMap
+  @inline final def typeMapOfCodecSet(codecs: Set[Codec[_]]): Map[JClass, Codec[_]] =
+    codecs.map(c ⇒ (c.jvmClass, c)).toMap
 
   final val PrimitiveCodecsSet = Set[Codec[_]](
-    BooleanCodec,
     ByteCodec,
+    BooleanCodec,
+    CharCodec,
     ShortCodec,
     IntCodec,
     LongCodec,
+    FloatCodec,
     DoubleCodec
   )
 
-  final val PrimitiveCodecs: Map[JType, Codec[_]] = typeMapOfCodecSet(PrimitiveCodecsSet)
+  final val PrimitiveCodecs: Map[JClass, Codec[_]] = typeMapOfCodecSet(PrimitiveCodecsSet)
+
+  final def isPrimitiveClass[T](jvmClass: Class[T]) = PrimitiveCodecs.contains(jvmClass)
 
   final val PrimitiveRefCodecsSet = Set[Codec[_]](
-    BooleanRefCodec,
     ByteRefCodec,
+    BooleanRefCodec,
+    CharRefCodec,
     ShortRefCodec,
     IntRefCodec,
     LongRefCodec,
+    FloatRefCodec,
     DoubleRefCodec
   )
 
-  final val PrimitiveRefCodecs: Map[JType, Codec[_]] = typeMapOfCodecSet(PrimitiveRefCodecsSet)
+  final val PrimitiveRefCodecs: Map[JClass, Codec[_]] = typeMapOfCodecSet(PrimitiveRefCodecsSet)
+
+  final def isPrimitiveRefClass[T](jvmClass: Class[T]) = PrimitiveRefCodecs.contains(jvmClass)
 
   final def AllPrimitiveCodecs = PrimitiveCodecs ++ PrimitiveRefCodecs
 

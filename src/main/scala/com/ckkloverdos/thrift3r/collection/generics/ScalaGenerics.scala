@@ -48,18 +48,18 @@ object ScalaGenerics {
   }
 
   final def elementTypeOfTraversable(jvmType: JType): JType =
-    typeTokenOf(jvmType).resolveType(seqJVMType).resolveType(seqElementGenericJVMType).getType
+    typeTokenOfType(jvmType).resolveType(seqJVMType).resolveType(seqElementGenericJVMType).getType
 
   final def elementTypeOfSeq(jvmType: JType): JType = elementTypeOfTraversable(jvmType)
 
   final def elementTypeOfSet(jvmType: JType): JType = elementTypeOfTraversable(jvmType)
 
   final def keyTypeOfMap(jvmType: JType): JType =
-    typeTokenOf(jvmType).resolveType(mapKeyGenericJVMType).getType
+    typeTokenOfType(jvmType).resolveType(mapKeyGenericJVMType).getType
 
   final def valueTypeOfMap(jvmType: JType): JType =
-    typeTokenOf(jvmType).resolveType(mapValueGenericJVMType).getType
+    typeTokenOfType(jvmType).resolveType(mapValueGenericJVMType).getType
 
   final def elementTypeOfOption(jvmType: JType): JType =
-    typeTokenOf(jvmType).resolveType(optionElementGenericJVMType).getType
+    typeTokenOfType(jvmType).resolveType(optionElementGenericJVMType).getType
 }

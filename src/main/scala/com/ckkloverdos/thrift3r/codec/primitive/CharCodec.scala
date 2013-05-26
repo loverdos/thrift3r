@@ -15,34 +15,23 @@
  */
 
 package com.ckkloverdos.thrift3r
-package codec.primitiveref
+package codec.primitive
 
 import com.ckkloverdos.thrift3r.TTypeEnum
 import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
 import org.apache.thrift.protocol.TProtocol
 
 /**
+ * Codec for chars. Treated as 32-bit ints. No particular reason.
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case object DoubleRefCodec extends Codec[java.lang.Double] with CodecToString {
+case object CharCodec extends Codec[Char] with CodecToString {
+  final def tTypeEnum = TTypeEnum.INT32
 
-  /**
-   * The supported [[com.ckkloverdos.thrift3r.TTypeEnum]],
-   * which is [[com.ckkloverdos.thrift3r.TTypeEnum#FLOAT64]].
-   */
-  final def tTypeEnum = TTypeEnum.FLOAT64
+  final def typeToken = typeTokenOfClass(CharClass)
 
-  final def typeToken = typeTokenOfClass(DoubleRefClass)
+  final def encode(protocol: TProtocol, value: Char) { protocol.writeI32(value.toInt) }
 
-  final def encode(protocol: TProtocol, value: java.lang.Double) {
-    val doubleValue = value match {
-      case null ⇒ 0.0
-      case _    ⇒ value.doubleValue()
-    }
-
-    protocol.writeDouble(doubleValue)
-  }
-
-  final def decode(protocol: TProtocol) = java.lang.Double.valueOf(protocol.readDouble())
+  final def decode(protocol: TProtocol) = protocol.readI32().toChar
 }

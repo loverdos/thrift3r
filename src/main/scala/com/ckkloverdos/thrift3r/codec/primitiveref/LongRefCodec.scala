@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.codec.primitiveref
+package com.ckkloverdos.thrift3r
+package codec.primitiveref
 
 import com.ckkloverdos.thrift3r.TTypeEnum
 import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
 import org.apache.thrift.protocol.TProtocol
-import com.google.common.reflect.TypeToken
 
 /**
  *
@@ -28,7 +28,7 @@ import com.google.common.reflect.TypeToken
 object LongRefCodec extends Codec[java.lang.Long] with CodecToString {
   final def tTypeEnum = TTypeEnum.INT64
 
-  final def typeToken = new TypeToken[java.lang.Long]{}
+  final def typeToken = typeTokenOfClass(LongRefClass)
 
   final def encode(protocol: TProtocol, value: java.lang.Long) {
     val longValue = value match {

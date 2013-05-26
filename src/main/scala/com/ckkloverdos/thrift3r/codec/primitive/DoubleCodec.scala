@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.codec.primitive
+package com.ckkloverdos.thrift3r
+package codec.primitive
 
 import com.ckkloverdos.thrift3r.TTypeEnum
 import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
 import org.apache.thrift.protocol.TProtocol
-import com.google.common.reflect.TypeToken
 
 /**
- * Codec for 32-bit integers.
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
@@ -34,7 +33,7 @@ case object DoubleCodec extends Codec[Double] with CodecToString {
    */
   final def tTypeEnum = TTypeEnum.FLOAT64
 
-  final def typeToken = new TypeToken[Double]{}
+  final def typeToken = typeTokenOfClass(DoubleClass)
 
   final def encode(protocol: TProtocol, value: Double) { protocol.writeDouble(value) }
 

@@ -15,34 +15,34 @@
  */
 
 package com.ckkloverdos.thrift3r
-package codec.primitiveref
+package codec.enumeration
 
 import com.ckkloverdos.thrift3r.TTypeEnum
 import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
 import org.apache.thrift.protocol.TProtocol
 
 /**
+ * Simple Java enumerations are encoded as integers.
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case object DoubleRefCodec extends Codec[java.lang.Double] with CodecToString {
+case class EnumCodec[E <: Enum[_]](enumClass: Class[E]) extends Codec[E] with CodecToString {
+  private[this] final val enumConstants = enumClass.getEnumConstants
 
-  /**
-   * The supported [[com.ckkloverdos.thrift3r.TTypeEnum]],
-   * which is [[com.ckkloverdos.thrift3r.TTypeEnum#FLOAT64]].
-   */
-  final def tTypeEnum = TTypeEnum.FLOAT64
+  // NOTE Not ENUM because TCompactProtocol/v0.9 throws:
+  // NOTE java.lang.ArrayIndexOutOfBoundsException: 16
+  // NOTE at org.apache.thrift.protocol.TCompactProtocol.getCompactType(TCompactProtocol.java:852)
+  def tTypeEnum = TTypeEnum.INT32
 
-  final def typeToken = typeTokenOfClass(DoubleRefClass)
+  def typeToken = typeTokenOfClass(enumClass)
 
-  final def encode(protocol: TProtocol, value: java.lang.Double) {
-    val doubleValue = value match {
-      case null ⇒ 0.0
-      case _    ⇒ value.doubleValue()
-    }
-
-    protocol.writeDouble(doubleValue)
+  def encode(protocol: TProtocol, value: E) {
+    val ordinal = value.ordinal()
+    protocol.writeI32(ordinal)
   }
 
-  final def decode(protocol: TProtocol) = java.lang.Double.valueOf(protocol.readDouble())
+  def decode(protocol: TProtocol) = {
+    val ordinal = protocol.readI32()
+    enumConstants(ordinal)
+  }
 }

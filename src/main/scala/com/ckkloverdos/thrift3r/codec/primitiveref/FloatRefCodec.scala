@@ -25,17 +25,12 @@ import org.apache.thrift.protocol.TProtocol
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case object DoubleRefCodec extends Codec[java.lang.Double] with CodecToString {
-
-  /**
-   * The supported [[com.ckkloverdos.thrift3r.TTypeEnum]],
-   * which is [[com.ckkloverdos.thrift3r.TTypeEnum#FLOAT64]].
-   */
+case object FloatRefCodec extends Codec[java.lang.Float] with CodecToString {
   final def tTypeEnum = TTypeEnum.FLOAT64
 
-  final def typeToken = typeTokenOfClass(DoubleRefClass)
+  final def typeToken = typeTokenOfClass(FloatRefClass)
 
-  final def encode(protocol: TProtocol, value: java.lang.Double) {
+  final def encode(protocol: TProtocol, value: java.lang.Float) {
     val doubleValue = value match {
       case null ⇒ 0.0
       case _    ⇒ value.doubleValue()
@@ -44,5 +39,5 @@ case object DoubleRefCodec extends Codec[java.lang.Double] with CodecToString {
     protocol.writeDouble(doubleValue)
   }
 
-  final def decode(protocol: TProtocol) = java.lang.Double.valueOf(protocol.readDouble())
+  final def decode(protocol: TProtocol) = java.lang.Float.valueOf(protocol.readDouble().toFloat)
 }

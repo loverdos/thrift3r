@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.tests.seq
+package com.ckkloverdos.thrift3r.tests.misc
 
 import com.ckkloverdos.thrift3r.tests.BaseFixture
 import org.junit.Test
@@ -23,8 +23,16 @@ import org.junit.Test
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-class ScalaSeqTest extends BaseFixture {
-  @Test def testC() { good(BeanCSeq(collection.Seq("One", "Two"))) }
-  @Test def testI() { good(BeanCSeq(collection.immutable.Seq("One", "Two"))) }
-  @Test def testM() { good(BeanCSeq(collection.mutable.Seq("One", "Two"))) }
+class MiscTest extends BaseFixture {
+  @Test def testClass() { good(BeanClass(classOf[MiscTest])) }
+
+  @Test def testOptionIntNone() { bad(BeanOptionInt(None)) }
+  @Test def testOptionIntSome() { bad(BeanOptionInt(Some(1))) }
+
+  @Test def testOptionIntRefSome() { good(BeanOptionIntRef(Some(1))) }
+  @Test def testOptionIntRefNone() { good(BeanOptionIntRef(None)) }
+
+  @Test def testOptionStructSomeSome() { good(BeanOptionStruct(Some(BeanOptionString(Some("yes"))))) }
+  @Test def testOptionStructSomeNone() { good(BeanOptionStruct(Some(BeanOptionString(None)))) }
+  @Test def testOptionStructNone() { good(BeanOptionStruct(None)) }
 }

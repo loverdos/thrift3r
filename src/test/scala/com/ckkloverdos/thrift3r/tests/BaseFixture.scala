@@ -26,9 +26,24 @@ import org.junit.Assert
 trait BaseFixture {
   final val DefaultThrifter = new Thrift3r()
 
-  protected def check[A <: AnyRef](obj: A, thrifter: Thrift3r = DefaultThrifter) {
+  protected def good[A <: AnyRef](obj: A, thrifter: Thrift3r = DefaultThrifter) {
     val bytes = thrifter.beanToBytes(obj)
     val bean  = thrifter.bytesToBean(obj.getClass, bytes)
     Assert.assertEquals(obj, bean)
+  }
+
+  protected def bad[A <: AnyRef](obj: A, thrifter: Thrift3r = DefaultThrifter) {
+    try {
+      thrifter.beanToBytes(obj)
+    } catch {
+      case e: Throwable ⇒
+//        System.out.println("Ignoring: %s".format(e))
+//        for(trace0 ← e.getStackTrace) {
+//          System.out.println("      at: %s.%s(%s:%s)".format(trace0.getClassName, trace0.getMethodName, trace0.getFileName, trace0.getLineNumber))
+//        }
+        return
+    }
+
+    assert(false, "Encoding of %s should have failed".format(obj))
   }
 }

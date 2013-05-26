@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.codec.primitiveref
+package com.ckkloverdos.thrift3r
+package codec.primitiveref
 
 import com.ckkloverdos.thrift3r.TTypeEnum
 import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
-import com.google.common.reflect.TypeToken
 import org.apache.thrift.protocol.TProtocol
 
 /**
@@ -28,7 +28,7 @@ import org.apache.thrift.protocol.TProtocol
 case object BooleanRefCodec extends Codec[java.lang.Boolean] with CodecToString {
   final def tTypeEnum = TTypeEnum.BOOL
 
-  final def typeToken = new TypeToken[java.lang.Boolean]{}
+  final def typeToken = typeTokenOfClass(BooleanRefClass)
 
   final def encode(protocol: TProtocol, value: java.lang.Boolean) {
     val booleanValue = value match {

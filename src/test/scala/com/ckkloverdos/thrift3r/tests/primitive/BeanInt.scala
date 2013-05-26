@@ -14,15 +14,29 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.tests.jvmClass
-
-import com.ckkloverdos.thrift3r.tests.BaseFixture
-import org.junit.Test
+package com.ckkloverdos.thrift3r.tests.primitive
 
 /**
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-class JVMClassTest extends BaseFixture {
-  @Test def test() { check(BeanWithClass(classOf[JVMClassTest])) }
-}
+case class BeanInt(v: Int)
+
+case class BeanByte(v: Byte)
+case class BeanBoolean(v: Boolean)
+case class BeanChar(v: Char)
+case class BeanShort(v: Short)
+case class BeanLong(v: Long)
+case class BeanFloat(v: Float)
+case class BeanDouble(v: Double)
+
+case class BeanFull(
+  byte: Byte,
+  boolean: Boolean,
+  char: Char,
+  short: Short,
+  int: Int,
+  long: Long,
+  float: Float,
+  double: Double
+)

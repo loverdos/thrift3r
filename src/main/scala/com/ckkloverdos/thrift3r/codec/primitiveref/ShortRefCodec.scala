@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.codec.primitiveref
+package com.ckkloverdos.thrift3r
+package codec.primitiveref
 
 import com.ckkloverdos.thrift3r.TTypeEnum
 import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
 import org.apache.thrift.protocol.TProtocol
-import com.google.common.reflect.TypeToken
 
 /**
  *
@@ -28,7 +28,7 @@ import com.google.common.reflect.TypeToken
 case object ShortRefCodec extends Codec[java.lang.Short] with CodecToString {
   final def tTypeEnum = TTypeEnum.INT16
 
-  final def typeToken = new TypeToken[java.lang.Short]{}
+  final def typeToken = typeTokenOfClass(ShortRefClass)
 
   final def encode(protocol: TProtocol, value: java.lang.Short) {
     val shortValue = value match {
@@ -36,7 +36,7 @@ case object ShortRefCodec extends Codec[java.lang.Short] with CodecToString {
       case _    ⇒ value.shortValue()
     }
 
-    protocol.writeI16(value.shortValue())
+    protocol.writeI16(shortValue)
   }
 
   final def decode(protocol: TProtocol) = java.lang.Short.valueOf(protocol.readI16())

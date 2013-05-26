@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.codec.primitive
+package com.ckkloverdos.thrift3r
+package codec.primitive
 
 import com.ckkloverdos.thrift3r.TTypeEnum
 import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
 import org.apache.thrift.protocol.TProtocol
-import com.google.common.reflect.TypeToken
 
 /**
  *
@@ -28,7 +28,7 @@ import com.google.common.reflect.TypeToken
 case object ByteCodec extends Codec[Byte] with CodecToString {
   final def tTypeEnum = TTypeEnum.INT8
 
-  final def typeToken = new TypeToken[Byte]{}
+  final def typeToken = typeTokenOfClass(ByteClass)
 
   final def encode(protocol: TProtocol, value: Byte) { protocol.writeByte(value) }
 

@@ -33,7 +33,7 @@ case class StructDescriptor(
   constructor: Constructor[_]
 ) extends Descriptor {
 
-  final val arity = fields.size
+  final val arity: Short = fields.size.toShort
 
   final val thriftStruct: TStruct = new TStruct(fullName)
 

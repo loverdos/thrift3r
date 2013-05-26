@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.tests.jvmClass
+package com.ckkloverdos.thrift3r.tests.enumeration;
 
 /**
- *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case class BeanWithClass[T](jvmClass: Class[T])
+public enum Days {
+    SUN, MON, TUE, WED, THU, FRI, SAT
+}
