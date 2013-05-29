@@ -14,67 +14,38 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.codec.collection
+package com.ckkloverdos.thrift3r.codec
+package collection
 
 import com.ckkloverdos.thrift3r.TTypeEnum
-import com.ckkloverdos.thrift3r.codec.Codec
 import com.ckkloverdos.thrift3r.collection.builder.CollectionBuilderFactory
+import com.ckkloverdos.thrift3r.protocol.Protocol
+import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
 import com.google.common.reflect.TypeToken
 import scala.collection.GenMap
-import org.apache.thrift.protocol.{TMap, TProtocol}
-import scala.annotation.tailrec
 
 /**
+ * Codec for Scala Maps.
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case class ScalaMapCollectionCodec[A, B, M](
+case class ScalaMapCodec[A, B, M](
   typeToken: TypeToken[GenMap[A, B]],
   keyCodec: Codec[A],
   valueCodec: Codec[B],
   meta: M,
   builderFactory: CollectionBuilderFactory[(A, B), GenMap[A, B], M]
-) extends Codec[GenMap[A, B]] {
+) extends Codec[GenMap[A, B]] with UnsupportedDirectStringTransformations[GenMap[A, B]] {
 
   def tTypeEnum = TTypeEnum.MAP
 
-  def encode(protocol: TProtocol, map: GenMap[A, B]) {
-    val isNull = map eq null
-    val tMap = new TMap(
-      keyCodec.tType,
-      valueCodec.tType,
-      if(isNull) 0 else map.size
-    )
-
-    protocol.writeMapBegin(tMap)
-    if(!isNull) {
-      for((k, v) ← map) {
-        keyCodec.encode(protocol, k)
-        valueCodec.encode(protocol, v)
-      }
-    }
-    protocol.writeMapEnd()
+  def encode(protocol: Protocol, map: GenMap[A, B]) {
+    ProtocolHelpers.writeMap(protocol, keyCodec, valueCodec, map)
   }
 
-  def decode(protocol: TProtocol) = {
+  def decode(protocol: Protocol) = {
     val builder = builderFactory.newBuilder(meta)
-
-    @tailrec def decodeElement(index: Int, size: Int) {
-      if(index < size) {
-        val key = keyCodec.decode(protocol)
-        val value = valueCodec.decode(protocol)
-        builder.add(key → value)
-
-        decodeElement(index + 1, size)
-      }
-    }
-
-    val tMap = protocol.readMapBegin()
-    val size = tMap.size
-    decodeElement(0, size)
-    protocol.readMapEnd()
-
+    ProtocolHelpers.readMap[A, B](protocol, keyCodec, valueCodec, builder.add(_))
     builder.build
   }
-
 }

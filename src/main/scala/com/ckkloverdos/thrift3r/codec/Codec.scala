@@ -17,8 +17,8 @@
 package com.ckkloverdos.thrift3r
 package codec
 
-import org.apache.thrift.protocol.TProtocol
 import com.ckkloverdos.thrift3r.TTypeEnum
+import com.ckkloverdos.thrift3r.protocol.Protocol
 import com.google.common.reflect.TypeToken
 
 /**
@@ -41,7 +41,21 @@ trait Codec[T] {
 
   final def jvmClass: Class[T] = typeToken.getRawType.asInstanceOf[Class[T]]
 
-  def encode(protocol: TProtocol, value: T)
+  def encode(protocol: Protocol, value: T)
 
-  def decode(protocol: TProtocol): T
+  def decode(protocol: Protocol): T
+
+  final def hasDirectStringRepresentation = tTypeEnum.hasDirectStringRepresentation
+
+  def toDirectString(value: T): String
+
+  def fromDirectString(value: String): T
+}
+
+trait UnsupportedDirectStringTransformations[T] { this: Codec[T] ⇒
+  final def toDirectString(value: T): String =
+      throw new UnsupportedOperationException("toDirectString not supported for %s".format(this))
+
+  final def fromDirectString(value: String): T =
+      throw new UnsupportedOperationException("fromDirectString not supported for %s".format(this))
 }

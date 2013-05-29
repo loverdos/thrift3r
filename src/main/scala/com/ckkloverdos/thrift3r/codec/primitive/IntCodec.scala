@@ -15,11 +15,11 @@
  */
 
 package com.ckkloverdos.thrift3r
-package codec.primitive
+package codec
+package primitive
 
 import com.ckkloverdos.thrift3r.TTypeEnum
-import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
-import org.apache.thrift.protocol.TProtocol
+import com.ckkloverdos.thrift3r.protocol.Protocol
 
 /**
  * Codec for 32-bit integers.
@@ -36,7 +36,11 @@ case object IntCodec extends Codec[Int] with CodecToString {
 
   final def typeToken = typeTokenOfClass(IntClass)
 
-  final def encode(protocol: TProtocol, value: Int) { protocol.writeI32(value) }
+  final def encode(protocol: Protocol, value: Int) { protocol.writeInt32(value) }
 
-  final def decode(protocol: TProtocol) = protocol.readI32()
+  final def decode(protocol: Protocol) = protocol.readInt32()
+
+  final def toDirectString(value: Int) = String.valueOf(value)
+
+  final def fromDirectString(value: String) = value.toInt
 }

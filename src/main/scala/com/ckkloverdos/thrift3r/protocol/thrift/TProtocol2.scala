@@ -14,32 +14,20 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r
-package codec
-package primitive
+package com.ckkloverdos.thrift3r.protocol.thrift
 
 import com.ckkloverdos.thrift3r.TTypeEnum
-import com.ckkloverdos.thrift3r.protocol.Protocol
+import org.apache.thrift.protocol.TProtocol
 
 /**
+ * A GC-friendlier extension to [[org.apache.thrift.protocol.TProtocol]].
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case object DoubleCodec extends Codec[Double] with CodecToString {
+trait TProtocol2 extends TProtocol {
+  def writeStructBegin(name: String)
 
-  /**
-   * The supported [[com.ckkloverdos.thrift3r.TTypeEnum]],
-   * which is [[com.ckkloverdos.thrift3r.TTypeEnum#FLOAT64]].
-   */
-  final def tTypeEnum = TTypeEnum.FLOAT64
+  def writeListBegin(elementType: TTypeEnum, size: Int)
 
-  final def typeToken = typeTokenOfClass(DoubleClass)
-
-  final def encode(protocol: Protocol, value: Double) { protocol.writeFloat64(value) }
-
-  final def decode(protocol: Protocol) = protocol.readFloat64()
-
-  final def toDirectString(value: Double) = String.valueOf(value)
-
-  final def fromDirectString(value: String) = value.toDouble
+  def writeSetBegin(elementType: TTypeEnum, size: Int)
 }

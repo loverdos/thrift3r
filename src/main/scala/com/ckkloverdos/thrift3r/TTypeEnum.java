@@ -45,4 +45,20 @@ public enum TTypeEnum {
     private TTypeEnum(byte ttype) {
         this.ttype = ttype;
     }
+
+    public boolean hasDirectStringRepresentation() {
+        switch(this) {
+            case BOOL:
+            case INT8:
+            case INT16:
+            case INT32:
+            case INT64:
+            case FLOAT64:
+            case STRING:
+            case ENUM:
+                return true;
+            default:
+                return false;
+        }
+    }
 }

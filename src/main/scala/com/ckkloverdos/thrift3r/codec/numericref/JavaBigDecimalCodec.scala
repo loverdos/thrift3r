@@ -14,36 +14,44 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.codec.numericref
+package com.ckkloverdos.thrift3r.codec
+package numericref
 
 import com.ckkloverdos.thrift3r.TTypeEnum
-import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
-import java.math.{MathContext, BigDecimal}
-import org.apache.thrift.protocol.TProtocol
+import com.ckkloverdos.thrift3r.protocol.Protocol
 import com.google.common.reflect.TypeToken
+import java.math.{MathContext, BigDecimal}
 
 /**
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case class JavaBigDecimalCodec(mc: MathContext) extends Codec[BigDecimal] with CodecToString {
-  final def tTypeEnum = TTypeEnum.STRING
+final case class JavaBigDecimalCodec(mc: MathContext) extends Codec[BigDecimal] with CodecToString {
+  def tTypeEnum = TTypeEnum.STRING
 
-  final def typeToken = new TypeToken[BigDecimal]{}
+  def typeToken = new TypeToken[BigDecimal]{}
 
-  final def encode(protocol: TProtocol, value: BigDecimal) {
-    val stringValue = value match {
+  @inline def getValue(value: BigDecimal): String = {
+    value match {
       case null ⇒ "0"
       case _    ⇒ value.toString
     }
+  }
+
+  def encode(protocol: Protocol, value: BigDecimal) {
+    val stringValue = getValue(value)
 
     protocol.writeString(stringValue)
   }
 
-  final def decode(protocol: TProtocol) = {
+  def decode(protocol: Protocol) = {
     val stringValue = protocol.readString()
     new BigDecimal(stringValue, mc)
   }
 
   override protected def extraToStringElements = List(mc)
+
+  def toDirectString(value: BigDecimal) = getValue(value)
+
+  def fromDirectString(value: String) = new BigDecimal(value, mc)
 }

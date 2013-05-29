@@ -15,11 +15,11 @@
  */
 
 package com.ckkloverdos.thrift3r
-package codec.primitiveref
+package codec
+package primitiveref
 
 import com.ckkloverdos.thrift3r.TTypeEnum
-import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
-import org.apache.thrift.protocol.TProtocol
+import com.ckkloverdos.thrift3r.protocol.Protocol
 
 /**
  *
@@ -30,14 +30,19 @@ case object BooleanRefCodec extends Codec[java.lang.Boolean] with CodecToString 
 
   final def typeToken = typeTokenOfClass(BooleanRefClass)
 
-  final def encode(protocol: TProtocol, value: java.lang.Boolean) {
-    val booleanValue = value match {
+  @inline final def getValue(value: java.lang.Boolean) =
+    value match {
       case null ⇒ false
       case _    ⇒ value.booleanValue()
     }
 
-    protocol.writeBool(booleanValue)
+  final def encode(protocol: Protocol, value: java.lang.Boolean) {
+    protocol.writeBool(getValue(value))
   }
 
-  final def decode(protocol: TProtocol) = java.lang.Boolean.valueOf(protocol.readBool())
+  final def decode(protocol: Protocol) = java.lang.Boolean.valueOf(protocol.readBool())
+
+  final def toDirectString(value: java.lang.Boolean) = String.valueOf(getValue(value))
+
+  final def fromDirectString(value: String) = java.lang.Boolean.valueOf(value)
 }

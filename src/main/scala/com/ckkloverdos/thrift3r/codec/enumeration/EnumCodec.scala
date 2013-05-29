@@ -15,11 +15,12 @@
  */
 
 package com.ckkloverdos.thrift3r
-package codec.enumeration
+package codec
+package enumeration
 
 import com.ckkloverdos.thrift3r.TTypeEnum
-import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
-import org.apache.thrift.protocol.TProtocol
+import com.ckkloverdos.thrift3r.protocol.Protocol
+import java.util.Locale
 
 /**
  * Simple Java enumerations are encoded as integers.
@@ -28,6 +29,7 @@ import org.apache.thrift.protocol.TProtocol
  */
 case class EnumCodec[E <: Enum[_]](enumClass: Class[E]) extends Codec[E] with CodecToString {
   private[this] final val enumConstants = enumClass.getEnumConstants
+  private[this] final val enumConstantsByName = enumConstants.map(e ⇒ (e.name().toLowerCase(Locale.US), e)).toMap
 
   // NOTE Not ENUM because TCompactProtocol/v0.9 throws:
   // NOTE java.lang.ArrayIndexOutOfBoundsException: 16
@@ -36,13 +38,17 @@ case class EnumCodec[E <: Enum[_]](enumClass: Class[E]) extends Codec[E] with Co
 
   def typeToken = typeTokenOfClass(enumClass)
 
-  def encode(protocol: TProtocol, value: E) {
+  def encode(protocol: Protocol, value: E) {
     val ordinal = value.ordinal()
-    protocol.writeI32(ordinal)
+    protocol.writeInt32(ordinal)
   }
 
-  def decode(protocol: TProtocol) = {
-    val ordinal = protocol.readI32()
+  def decode(protocol: Protocol) = {
+    val ordinal = protocol.readInt32()
     enumConstants(ordinal)
   }
+
+  def toDirectString(value: E) = value.toString
+
+  def fromDirectString(value: String) = enumConstantsByName(value.toLowerCase(Locale.US))
 }

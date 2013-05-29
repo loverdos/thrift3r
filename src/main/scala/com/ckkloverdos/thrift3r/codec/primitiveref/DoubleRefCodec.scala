@@ -15,11 +15,11 @@
  */
 
 package com.ckkloverdos.thrift3r
-package codec.primitiveref
+package codec
+package primitiveref
 
 import com.ckkloverdos.thrift3r.TTypeEnum
-import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
-import org.apache.thrift.protocol.TProtocol
+import com.ckkloverdos.thrift3r.protocol.Protocol
 
 /**
  *
@@ -35,14 +35,22 @@ case object DoubleRefCodec extends Codec[java.lang.Double] with CodecToString {
 
   final def typeToken = typeTokenOfClass(DoubleRefClass)
 
-  final def encode(protocol: TProtocol, value: java.lang.Double) {
-    val doubleValue = value match {
+  @inline final def getValue(value: java.lang.Double): Double = {
+    value match {
       case null ⇒ 0.0
-      case _    ⇒ value.doubleValue()
+      case _ ⇒ value.doubleValue()
     }
-
-    protocol.writeDouble(doubleValue)
   }
 
-  final def decode(protocol: TProtocol) = java.lang.Double.valueOf(protocol.readDouble())
+  final def encode(protocol: Protocol, value: java.lang.Double) {
+    val doubleValue = getValue(value)
+
+    protocol.writeFloat64(doubleValue)
+  }
+
+  final def decode(protocol: Protocol) = java.lang.Double.valueOf(protocol.readFloat64())
+
+  final def toDirectString(value: java.lang.Double) = String.valueOf(getValue(value))
+
+  final def fromDirectString(value: String) = java.lang.Double.valueOf(value)
 }

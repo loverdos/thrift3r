@@ -15,11 +15,11 @@
  */
 
 package com.ckkloverdos.thrift3r
-package codec.primitiveref
+package codec
+package primitiveref
 
 import com.ckkloverdos.thrift3r.TTypeEnum
-import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
-import org.apache.thrift.protocol.TProtocol
+import com.ckkloverdos.thrift3r.protocol.Protocol
 
 /**
  *
@@ -30,14 +30,22 @@ case object FloatRefCodec extends Codec[java.lang.Float] with CodecToString {
 
   final def typeToken = typeTokenOfClass(FloatRefClass)
 
-  final def encode(protocol: TProtocol, value: java.lang.Float) {
-    val doubleValue = value match {
+  @inline final def getValue(value: java.lang.Float): Double = {
+    value match {
       case null ⇒ 0.0
-      case _    ⇒ value.doubleValue()
+      case _ ⇒ value.doubleValue()
     }
-
-    protocol.writeDouble(doubleValue)
   }
 
-  final def decode(protocol: TProtocol) = java.lang.Float.valueOf(protocol.readDouble().toFloat)
+  final def encode(protocol: Protocol, value: java.lang.Float) {
+    val doubleValue = getValue(value)
+
+    protocol.writeFloat64(doubleValue)
+  }
+
+  final def decode(protocol: Protocol) = java.lang.Float.valueOf(protocol.readFloat64().toFloat)
+
+  final def toDirectString(value: java.lang.Float) = String.valueOf(getValue(value).toFloat)
+
+  final def fromDirectString(value: String) = java.lang.Float.valueOf(value)
 }

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.codec.stdref
+package com.ckkloverdos.thrift3r.codec
+package stdref
 
 import com.ckkloverdos.thrift3r.TTypeEnum
-import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
+import com.ckkloverdos.thrift3r.protocol.Protocol
 import com.google.common.reflect.TypeToken
-import org.apache.thrift.protocol.TProtocol
 
 /**
  *
@@ -35,7 +35,11 @@ case object StringCodec extends Codec[String] with CodecToString {
 
   final def typeToken = new TypeToken[String]{}
 
-  final def encode(protocol: TProtocol, value: String) { protocol.writeString(value) }
+  final def encode(protocol: Protocol, value: String) { protocol.writeString(value) }
 
-  final def decode(protocol: TProtocol) = protocol.readString()
+  final def decode(protocol: Protocol) = protocol.readString()
+
+  final def toDirectString(value: String) = value
+
+  final def fromDirectString(value: String) = value
 }

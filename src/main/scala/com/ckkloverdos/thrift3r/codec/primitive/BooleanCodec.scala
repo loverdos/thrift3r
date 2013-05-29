@@ -15,11 +15,11 @@
  */
 
 package com.ckkloverdos.thrift3r
-package codec.primitive
+package codec
+package primitive
 
 import com.ckkloverdos.thrift3r.TTypeEnum
-import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
-import org.apache.thrift.protocol.TProtocol
+import com.ckkloverdos.thrift3r.protocol.Protocol
 
 /**
  *
@@ -30,7 +30,11 @@ case object BooleanCodec extends Codec[Boolean] with CodecToString {
 
   final def typeToken = typeTokenOfClass(BooleanClass)
 
-  final def encode(protocol: TProtocol, value: Boolean) { protocol.writeBool(value) }
+  final def encode(protocol: Protocol, value: Boolean) { protocol.writeBool(value) }
 
-  final def decode(protocol: TProtocol) = protocol.readBool()
+  final def decode(protocol: Protocol) = protocol.readBool()
+
+  final def toDirectString(value: Boolean) = String.valueOf(value)
+
+  final def fromDirectString(value: String) = value.toBoolean
 }

@@ -15,11 +15,11 @@
  */
 
 package com.ckkloverdos.thrift3r
-package codec.primitiveref
+package codec
+package primitiveref
 
 import com.ckkloverdos.thrift3r.TTypeEnum
-import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
-import org.apache.thrift.protocol.TProtocol
+import com.ckkloverdos.thrift3r.protocol.Protocol
 
 /**
  *
@@ -30,14 +30,22 @@ case object ShortRefCodec extends Codec[java.lang.Short] with CodecToString {
 
   final def typeToken = typeTokenOfClass(ShortRefClass)
 
-  final def encode(protocol: TProtocol, value: java.lang.Short) {
-    val shortValue = value match {
+  @inline final def getValue(value: java.lang.Short): Short = {
+    value match {
       case null ⇒ 0.toShort
       case _    ⇒ value.shortValue()
     }
-
-    protocol.writeI16(shortValue)
   }
 
-  final def decode(protocol: TProtocol) = java.lang.Short.valueOf(protocol.readI16())
+  final def encode(protocol: Protocol, value: java.lang.Short) {
+    val shortValue = getValue(value)
+
+    protocol.writeInt16(shortValue)
+  }
+
+  final def decode(protocol: Protocol) = java.lang.Short.valueOf(protocol.readInt16())
+
+  final def toDirectString(value: java.lang.Short) = String.valueOf(getValue(value))
+
+  final def fromDirectString(value: String) = java.lang.Short.valueOf(value)
 }

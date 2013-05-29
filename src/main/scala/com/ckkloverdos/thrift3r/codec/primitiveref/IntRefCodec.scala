@@ -15,11 +15,11 @@
  */
 
 package com.ckkloverdos.thrift3r
-package codec.primitiveref
+package codec
+package primitiveref
 
 import com.ckkloverdos.thrift3r.TTypeEnum
-import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
-import org.apache.thrift.protocol.TProtocol
+import com.ckkloverdos.thrift3r.protocol.Protocol
 
 /**
  *
@@ -35,14 +35,22 @@ case object IntRefCodec extends Codec[java.lang.Integer] with CodecToString {
 
   final def typeToken = typeTokenOfClass(IntRefClass)
 
-  final def encode(protocol: TProtocol, value: java.lang.Integer) {
-    val intValue = value match {
+  @inline final def getValue(value: java.lang.Integer): Int = {
+    value match {
       case null ⇒ 0
       case _ ⇒ value.intValue()
     }
-
-    protocol.writeI32(intValue)
   }
 
-  final def decode(protocol: TProtocol) = java.lang.Integer.valueOf(protocol.readI32())
+  final def encode(protocol: Protocol, value: java.lang.Integer) {
+    val intValue = getValue(value)
+
+    protocol.writeInt32(intValue)
+  }
+
+  final def decode(protocol: Protocol) = java.lang.Integer.valueOf(protocol.readInt32())
+
+  final def toDirectString(value: java.lang.Integer) = String.valueOf(getValue(value))
+
+  final def fromDirectString(value: String) = java.lang.Integer.valueOf(value)
 }

@@ -15,11 +15,11 @@
  */
 
 package com.ckkloverdos.thrift3r
-package codec.primitive
+package codec
+package primitive
 
 import com.ckkloverdos.thrift3r.TTypeEnum
-import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
-import org.apache.thrift.protocol.TProtocol
+import com.ckkloverdos.thrift3r.protocol.Protocol
 
 /**
  *
@@ -30,7 +30,11 @@ case object LongCodec extends Codec[Long] with CodecToString {
 
   final def typeToken = typeTokenOfClass(LongClass)
 
-  final def encode(protocol: TProtocol, value: Long) { protocol.writeI64(value) }
+  final def encode(protocol: Protocol, value: Long) { protocol.writeInt64(value) }
 
-  final def decode(protocol: TProtocol) = protocol.readI64()
+  final def decode(protocol: Protocol) = protocol.readInt64()
+
+  final def toDirectString(value: Long) = String.valueOf(value)
+
+  final def fromDirectString(value: String) = value.toLong
 }

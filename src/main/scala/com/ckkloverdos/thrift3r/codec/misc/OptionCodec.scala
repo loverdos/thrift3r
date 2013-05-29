@@ -18,8 +18,8 @@ package com.ckkloverdos.thrift3r.codec
 package misc
 
 import com.ckkloverdos.thrift3r.TTypeEnum
+import com.ckkloverdos.thrift3r.protocol.{UnsizedSetProtocol, SizedSetProtocol, Protocol}
 import com.google.common.reflect.TypeToken
-import org.apache.thrift.protocol.{TSet, TProtocol}
 
 /**
  *
@@ -28,29 +28,45 @@ import org.apache.thrift.protocol.{TSet, TProtocol}
 final case class OptionCodec[T](
   typeToken: TypeToken[Option[T]],
   elementCodec: Codec[T]
-) extends Codec[Option[T]] {
+) extends Codec[Option[T]] with UnsupportedDirectStringTransformations[Option[T]] {
 
   def tTypeEnum = TTypeEnum.SET
 
-  def encode(protocol: TProtocol, value: Option[T]) {
+  def encode(protocol: Protocol, value: Option[T]) {
+    val setProtocol = protocol.getSetProtocol
     value match {
       case null | None ⇒
-        val tSet = new TSet(elementCodec.tType, 0)
-        protocol.writeSetBegin(tSet)
-        protocol.writeSetEnd()
+        setProtocol.writeSetBegin(elementCodec, 0)
+        setProtocol.writeSetEnd()
 
       case Some(element) ⇒
-        val tSet = new TSet(elementCodec.tType, 1)
-        protocol.writeSetBegin(tSet)
-        elementCodec.encode(protocol, element)
-        protocol.writeSetEnd()
+        setProtocol.writeSetBegin(elementCodec, 1)
+        setProtocol.writeSetElement(element, elementCodec)
+        setProtocol.writeSetEnd()
     }
   }
 
-  def decode(protocol: TProtocol) = {
-    val tSet = protocol.readSetBegin()
-    val option = if(tSet.size == 0) None else Some(elementCodec.decode(protocol))
-    protocol.readSetEnd()
-    option
+  def decode(protocol: Protocol) = {
+    protocol.getSetProtocol match {
+      case setProtocol: SizedSetProtocol ⇒
+        val isEmpty = setProtocol.readSetBegin() == 0
+        val option = if(isEmpty) None else {
+          val element = setProtocol.readSetElement(elementCodec)
+          Some(element)
+        }
+        setProtocol.readSetEnd()
+        option
+
+      case setProtocol: UnsizedSetProtocol ⇒
+        setProtocol.readSetBegin()
+        if(setProtocol.readSetEnd()) {
+          None
+        }
+        else {
+          val element = setProtocol.readSetElement(elementCodec)
+          setProtocol.readSetEnd()
+          Some(element)
+        }
+    }
   }
 }

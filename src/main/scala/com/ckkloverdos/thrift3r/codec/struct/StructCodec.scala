@@ -15,14 +15,14 @@
  */
 
 package com.ckkloverdos.thrift3r
-package codec.struct
+package codec
+package struct
 
-import com.ckkloverdos.thrift3r.Thrift3rHelpers.valueAndTypeStr
-import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
-import com.ckkloverdos.thrift3r.descriptor.StructDescriptor
+import com.ckkloverdos.thrift3r.descriptor.{FieldInfo, StructDescriptor}
+import com.ckkloverdos.thrift3r.protocol.{FieldsByIDStructProtocol, FieldsByNameStructProtocol, StrictFieldsStructProtocol, Protocol}
 import com.google.common.reflect.TypeToken
-import org.apache.thrift.protocol.{TField, TProtocol}
 import scala.annotation.tailrec
+import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
 
 /**
  *
@@ -31,18 +31,18 @@ import scala.annotation.tailrec
 case class StructCodec[T](
   thrifter: Thrift3r,
   descriptor: StructDescriptor
-) extends Codec[T] with CodecToString {
+) extends Codec[T] with CodecToString with UnsupportedDirectStringTransformations[T] {
 
-  final val codecAndFieldById = for((fieldId, fieldDescr) ← descriptor.fields) yield {
+  final val fieldInfoByID = for((fieldId, fieldDescr) ← descriptor.fields) yield {
     val fieldType = fieldDescr.jvmType
     val fieldCodec = thrifter.codecOfType(fieldType).asInstanceOf[Codec[Any]]
-    val tfield = new TField(fieldDescr.name, fieldCodec.tType, fieldId)
-    val result = (fieldId, (fieldCodec, tfield))
-//    println("!! codecAndFieldById: %s".format(result))
-    result
+
+    (fieldId, FieldInfo(fieldDescr, fieldCodec))
   }
 
+  final val fieldInfoByName = fieldInfoByID.map { case (id, fi) ⇒ (fi.name, fi) }
 
+  final val arity: Short = descriptor.arity
 
   /**
    * The supported [[com.ckkloverdos.thrift3r.TTypeEnum]].
@@ -51,97 +51,14 @@ case class StructCodec[T](
 
   final def typeToken = descriptor.typeToken.asInstanceOf[TypeToken[T]]
 
-  final def encode(protocol: TProtocol, value: T) {
-//    println("let encode %s (%s) =".format(protocol, valueAndTypeStr(value)))
-    val arity = descriptor.arity.toShort
-
-    @tailrec def encodeFields(id: Short) {
-      if(id >= arity) {return}
-
-      val fieldDescr = descriptor.fields(id)
-      val fieldValue = fieldDescr.getter(value.asInstanceOf[AnyRef])
-      val (fieldCodec, tfield) = codecAndFieldById(id)
-
-//      println("  encode (%s) %s::%s, value=(%s), codec=%s".format(
-//        id,
-//        descriptor.jvmClass.getSimpleName,
-//        fieldDescr.name,
-//        valueAndTypeStr(fieldValue),
-//        fieldCodec
-//      ))
-
-      try {
-        protocol.writeFieldBegin(tfield)
-        fieldCodec.encode(protocol, fieldValue)
-        protocol.writeFieldEnd()
-      }
-      catch {
-        case e: Throwable ⇒
-          throw new Exception(
-            "Error encoding %s::%s of type %s".format(
-              descriptor.jvmClass.getName,
-              fieldDescr.name,
-              fieldDescr.jvmClass.getName
-            ),
-            e
-          )
-      }
-
-      encodeFields((id + 1).toShort)
-    }
-
-    protocol.writeStructBegin(descriptor.thriftStruct)
-    encodeFields(0.toShort)
-    protocol.writeStructEnd()
+  final def encode(protocol: Protocol, value: T) {
+    ProtocolHelpers.writeStruct(protocol, descriptor, fieldInfoByID, value)
   }
 
-  final def decode(protocol: TProtocol) = {
-    val arity = descriptor.arity
-//    println("let decode %s = (->%s/%s)".format(protocol, descriptor.jvmType, arity))
+  final def decode(protocol: Protocol) = {
     val params = new Array[AnyRef](arity)
-
-    @tailrec def decodeFields(i: Short) {
-      if(i >= arity) {return}
-
-      val (fieldCodec, tfield) = codecAndFieldById(i)
-
-      val fieldDescr = descriptor.fields(i)
-//      println("  let decode (%s) %s::%s, codec=%s = ".format(
-//        i,
-//        descriptor.jvmClass.getSimpleName,
-//        fieldDescr.name,
-//        fieldCodec
-//      ))
-
-      try {
-        protocol.readFieldBegin()
-        val fieldValue = fieldCodec.decode(protocol)
-        protocol.readFieldEnd()
-        params(i) = fieldValue.asInstanceOf[AnyRef]
-
-//        println("    (%s)".format(valueAndTypeStr(fieldValue)))
-      }
-      catch {
-        case e: Throwable ⇒
-          throw new Exception(
-            "Error decoding %s::%s of type %s".format(
-              descriptor.jvmType,
-              fieldDescr.name,
-              fieldDescr.jvmType
-            ),
-            e
-          )
-      }
-
-      decodeFields((i + 1).toShort)
-    }
-
-    protocol.readStructBegin()
-    decodeFields(0.toShort)
-    protocol.readStructEnd()
-
+    ProtocolHelpers.readStruct(protocol, fieldInfoByID, fieldInfoByName, params)
     val struct = descriptor.construct(params)
-//    println("  (%s)".format(valueAndTypeStr(struct)))
     struct.asInstanceOf[T]
   }
 

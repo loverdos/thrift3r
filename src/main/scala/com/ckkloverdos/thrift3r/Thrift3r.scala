@@ -17,24 +17,30 @@
 package com.ckkloverdos.thrift3r
 
 import com.ckkloverdos.thrift3r.Thrift3rHelpers.{getterOf, defaultProtocolFor}
-import com.ckkloverdos.thrift3r.codec.collection.{ScalaMapCollectionCodec, ScalaNonMapCollectionCodec}
+import com.ckkloverdos.thrift3r.codec.collection.{ScalaSeqSetCodec, ScalaMapCodec}
 import com.ckkloverdos.thrift3r.codec.enumeration.EnumCodec
 import com.ckkloverdos.thrift3r.codec.misc.OptionCodec
 import com.ckkloverdos.thrift3r.codec.struct.StructCodec
-import com.ckkloverdos.thrift3r.codec.{Codecs, Codec}
+import com.ckkloverdos.thrift3r.codec.{Codec, Codecs}
 import com.ckkloverdos.thrift3r.collection.builder.CollectionBuilderFactory
 import com.ckkloverdos.thrift3r.collection.descriptor.{ScalaDescriptor, CollectionDescriptor}
 import com.ckkloverdos.thrift3r.collection.generics.ScalaGenerics
 import com.ckkloverdos.thrift3r.collection.ordering.{ScalaCollectionOrdering, ScalaOrderings, CollectionOrdering}
 import com.ckkloverdos.thrift3r.descriptor.{StructDescriptor, FieldDescriptor}
+import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
 import com.google.common.cache.{CacheLoader, CacheBuilder, LoadingCache}
 import com.google.common.reflect.TypeToken
 import com.thoughtworks.paranamer.{DefaultParanamer, BytecodeReadingParanamer, AnnotationParanamer, AdaptiveParanamer, Paranamer}
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream, OutputStream}
+import java.io.{StringReader, StringWriter, ByteArrayInputStream, ByteArrayOutputStream, InputStream, OutputStream}
 import java.lang.reflect.Constructor
 import org.apache.thrift.protocol.TProtocol
 import org.apache.thrift.transport.{TIOStreamTransport, TTransport}
 import scala.collection.{Set ⇒ CSet, Seq ⇒ CSeq, Map ⇒ CMap, GenMap, GenTraversable, immutable}
+import com.ckkloverdos.thrift3r.protocol.Protocol
+import com.ckkloverdos.thrift3r.protocol.thrift.TProtocolAdapter
+import com.ckkloverdos.thrift3r.protocol.json.{JSONHelpers, JSONProtocol}
+import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
 
 /**
  *
@@ -71,6 +77,9 @@ case class Thrift3r(
   def codecOfClass[T](jvmClass: Class[T]): Codec[T] =
     codecOfType(jvmClass).asInstanceOf[Codec[T]]
 
+  def codecOfBean[T <: AnyRef](bean: T): Codec[T] =
+    codecOfClass(bean.getClass.asInstanceOf[Class[T]])
+
   protected def codecOfOption(
     typeToken: TypeToken[_],
     elementCodec: Codec[_]
@@ -83,12 +92,12 @@ case class Thrift3r(
   protected def codecOfSeq(
     typeToken: TypeToken[_],
     elementCodec: Codec[_]
-  ): Codec[_] = codecOfNonMapCollection(TTypeEnum.LIST, typeToken, elementCodec)
+  ): Codec[_] = codecOfSeqSet(TTypeEnum.LIST, typeToken, elementCodec)
 
   protected def codecOfSet(
     typeToken: TypeToken[_],
     elementCodec: Codec[_]
-  ): Codec[_] = codecOfNonMapCollection(TTypeEnum.SET, typeToken, elementCodec)
+  ): Codec[_] = codecOfSeqSet(TTypeEnum.SET, typeToken, elementCodec)
 
   protected def codecOfMap(
     typeToken: TypeToken[_],
@@ -109,7 +118,7 @@ case class Thrift3r(
               throw new Exception("Unknown ordering for key %s to be used for map %s".format(keyClass, collectionClass))
 
             case Some(ScalaCollectionOrdering(_, ordering)) ⇒
-              ScalaMapCollectionCodec[Any, Any, Ordering[Any]](
+              ScalaMapCodec[Any, Any, Ordering[Any]](
                 typeToken.asInstanceOf[TypeToken[GenMap[Any, Any]]],
                 keyCodec.asInstanceOf[Codec[Any]],
                 valueCodec.asInstanceOf[Codec[Any]],
@@ -119,7 +128,7 @@ case class Thrift3r(
           }
         }
         else {
-          ScalaMapCollectionCodec[Any, Any, Unit](
+          ScalaMapCodec[Any, Any, Unit](
             typeToken.asInstanceOf[TypeToken[GenMap[Any, Any]]],
             keyCodec.asInstanceOf[Codec[Any]],
             valueCodec.asInstanceOf[Codec[Any]],
@@ -130,7 +139,7 @@ case class Thrift3r(
     }
   }
 
-  protected def codecOfNonMapCollection(
+  protected def codecOfSeqSet(
     tTypeEnum: TTypeEnum,
     typeToken: TypeToken[_],
     elementCodec: Codec[_]
@@ -149,8 +158,8 @@ case class Thrift3r(
               throw new Exception("Unknown ordering for %s to be used for %s".format(elementClass, collectionClass))
 
             case Some(ScalaCollectionOrdering(_, ordering)) ⇒
-              ScalaNonMapCollectionCodec[Any, Any](
-                TTypeEnum.LIST,
+              ScalaSeqSetCodec[Any, Any](
+                tTypeEnum,
                 typeToken.asInstanceOf[TypeToken[GenTraversable[Any]]],
                 elementCodec.asInstanceOf[Codec[Any]],
                 ordering,
@@ -162,8 +171,8 @@ case class Thrift3r(
           }
         }
         else {
-          ScalaNonMapCollectionCodec[Any, Unit](
-            TTypeEnum.LIST,
+          ScalaSeqSetCodec[Any, Unit](
+            tTypeEnum,
             typeToken.asInstanceOf[TypeToken[GenTraversable[Any]]],
             elementCodec.asInstanceOf[Codec[Any]],
             (),
@@ -304,8 +313,13 @@ case class Thrift3r(
     descriptor
   }
 
-  def encodeBean[A <: AnyRef](bean: A, protocol: TProtocol) {
+  def encodeBean[A <: AnyRef](bean: A, protocol: Protocol) {
     codecOfClass(bean.getClass.asInstanceOf[Class[A]]).encode(protocol, bean)
+  }
+
+  def encodeBean[A <: AnyRef](bean: A, tprotocol: TProtocol) {
+    val protocol = new TProtocolAdapter(tprotocol)
+    encodeBean(bean, protocol)
   }
 
   def encodeBean[A <: AnyRef](bean: A, transport: TTransport, close: Boolean) {
@@ -319,8 +333,13 @@ case class Thrift3r(
     encodeBean(bean, transport, close)
   }
 
-  def decodeBean[A <: AnyRef](javaClass: Class[A], protocol: TProtocol): A =
+  def decodeBean[A <: AnyRef](javaClass: Class[A], protocol: Protocol): A =
     codecOfClass(javaClass).decode(protocol)
+
+  def decodeBean[A <: AnyRef](javaClass: Class[A], tprotocol: TProtocol): A = {
+    val protocol = new TProtocolAdapter(tprotocol)
+    decodeBean(javaClass, protocol)
+  }
 
   def decodeBean[A <: AnyRef](beanClass: Class[A], transport: TTransport, close: Boolean): A = {
     val protocol = defaultProtocolFor(transport)
@@ -343,5 +362,22 @@ case class Thrift3r(
   def bytesToBean[A <: AnyRef](beanClass: Class[A], bytes: Array[Byte]): A = {
     val inStream = new ByteArrayInputStream(bytes)
     decodeBean(beanClass, inStream, true)
+  }
+
+  def beanToJSON[A <: AnyRef](bean: A, prettyPrint: Boolean = true): String = {
+    val writer = new StringWriter
+    val protocol = JSONHelpers.jsonProtocolForOutput(writer)
+
+    val codec = codecOfBean(bean)
+    ProtocolHelpers.encodeAndFlush(protocol, bean, codec)
+
+    writer.toString
+  }
+
+  def jsonToBean[A <: AnyRef](beanClass: Class[A], json: String): A = {
+    val reader = new StringReader(json)
+    val protocol = JSONHelpers.jsonProtocolForInput(reader)
+    val codec = codecOfClass(beanClass)
+    codec.decode(protocol)
   }
 }

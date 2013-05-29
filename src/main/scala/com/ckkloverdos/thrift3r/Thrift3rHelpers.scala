@@ -28,7 +28,7 @@ import scala.annotation.tailrec
  */
 object Thrift3rHelpers {
 
-  val a = List(1)
+
   def capitalize(name: String) = {
     name.substring(0, 1).toUpperCase + name.substring(1)
   }

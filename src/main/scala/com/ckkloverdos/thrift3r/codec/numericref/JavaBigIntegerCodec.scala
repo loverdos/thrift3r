@@ -14,36 +14,43 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.codec.numericref
+package com.ckkloverdos.thrift3r.codec
+package numericref
 
 import com.ckkloverdos.thrift3r.TTypeEnum
-import com.ckkloverdos.thrift3r.codec.{CodecToString, Codec}
-import java.math.BigInteger
-import org.apache.thrift.protocol.TProtocol
+import com.ckkloverdos.thrift3r.protocol.Protocol
 import com.google.common.reflect.TypeToken
+import java.math.BigInteger
 
 /**
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case class JavaBigIntegerCodec(radix: Int) extends Codec[BigInteger] with CodecToString {
-  final def tTypeEnum = TTypeEnum.STRING
+final case class JavaBigIntegerCodec(radix: Int) extends Codec[BigInteger] with CodecToString {
+  def tTypeEnum = TTypeEnum.STRING
 
-  final def typeToken = new TypeToken[BigInteger]{}
+  def typeToken = new TypeToken[BigInteger]{}
 
-  final def encode(protocol: TProtocol, value: BigInteger) {
-    val stringValue = value match {
+  @inline def getValue(value: BigInteger) =
+    value match {
       case null ⇒ "0"
       case _    ⇒ value.toString(radix)
     }
 
+  def encode(protocol: Protocol, value: BigInteger) {
+    val stringValue = getValue(value)
+
     protocol.writeString(stringValue)
   }
 
-  final def decode(protocol: TProtocol) = {
+  def decode(protocol: Protocol) = {
     val stringValue = protocol.readString()
     new BigInteger(stringValue, radix)
   }
 
   override protected def extraToStringElements = List(radix)
+
+  def toDirectString(value: BigInteger) = getValue(value)
+
+  def fromDirectString(value: String) = new BigInteger(value, radix)
 }

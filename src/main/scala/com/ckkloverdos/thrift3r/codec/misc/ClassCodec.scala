@@ -19,24 +19,28 @@ package codec
 package misc
 
 import com.ckkloverdos.thrift3r.TTypeEnum
-import org.apache.thrift.protocol.TProtocol
+import com.ckkloverdos.thrift3r.protocol.Protocol
 import com.google.common.reflect.TypeToken
 
 /**
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case class ClassCodec(loader: ClassLoader) extends Codec[JClass]{
+final case class ClassCodec(loader: ClassLoader) extends Codec[JClass] {
   def tTypeEnum = TTypeEnum.STRING
 
-  def typeToken = typeTokenOfClass(classOf[JClass]).asInstanceOf[TypeToken[JClass]]
+  def typeToken = typeTokenOfClass(classOf[JClass])
 
-  def encode(protocol: TProtocol, value: JClass) {
+  def encode(protocol: Protocol, value: JClass) {
     protocol.writeString(value.getName)
   }
 
-  def decode(protocol: TProtocol) = {
+  def decode(protocol: Protocol) = {
     val name = protocol.readString()
     loader.loadClass(name)
   }
+
+  def toDirectString(value: JClass) = value.getName
+
+  def fromDirectString(value: String) = loader.loadClass(value)
 }

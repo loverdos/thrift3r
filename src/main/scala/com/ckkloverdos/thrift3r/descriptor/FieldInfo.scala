@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.protocol
+package com.ckkloverdos.thrift3r.descriptor
 
-import org.apache.thrift.protocol.{TSet, TList, TStruct, TProtocol}
-import com.ckkloverdos.thrift3r.TTypeEnum
+import com.ckkloverdos.thrift3r.codec.Codec
 
 /**
- * A GC-friendlier extension to [[org.apache.thrift.protocol.TProtocol]].
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-trait TProtocol2 extends TProtocol {
-  def writeStructBegin(name: String)
-
-  def writeListBegin(elementType: TTypeEnum, size: Int)
-
-  def writeSetBegin(elementType: TTypeEnum, size: Int)
+final case class FieldInfo(field: FieldDescriptor, codec: Codec[_]) {
+  def jvmType = field.jvmType
+  def jvmClass = field.jvmClass
+  def id =  field.id
+  def name = field.name
 }

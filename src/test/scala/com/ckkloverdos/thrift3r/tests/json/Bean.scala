@@ -14,28 +14,16 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r
-package codec
-package primitive
-
-import com.ckkloverdos.thrift3r.TTypeEnum
-import com.ckkloverdos.thrift3r.protocol.Protocol
+package com.ckkloverdos.thrift3r.tests.json
 
 /**
- * Codec for chars. Treated as 32-bit ints. No particular reason.
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case object CharCodec extends Codec[Char] with CodecToString {
-  final def tTypeEnum = TTypeEnum.INT32
+case class Address(street: String, city: String, zip: String)
 
-  final def typeToken = typeTokenOfClass(CharClass)
-
-  final def encode(protocol: Protocol, value: Char) { protocol.writeInt32(value.toInt) }
-
-  final def decode(protocol: Protocol) = protocol.readInt32().toChar
-
-  final def toDirectString(value: Char) = String.valueOf(value)
-
-  final def fromDirectString(value: String) = value.charAt(0)
-}
+case class Bean(
+  name: String,
+  age: Int,
+  addresses: Set[Address]
+)
