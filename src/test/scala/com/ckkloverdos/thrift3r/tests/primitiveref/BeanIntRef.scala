@@ -14,17 +14,36 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r.tests.seq
-
-import com.ckkloverdos.thrift3r.tests.BaseFixture
-import org.junit.Test
+package com.ckkloverdos.thrift3r
+package tests.primitiveref
 
 /**
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-class ScalaSeqTest extends BaseFixture {
-  @Test def testC() { goodThrift(BeanCSeq(collection.Seq("One", "Two"))) }
-  @Test def testI() { goodThrift(BeanCSeq(collection.immutable.Seq("One", "Two"))) }
-  @Test def testM() { goodThrift(BeanCSeq(collection.mutable.Seq("One", "Two"))) }
-}
+case class BeanIntRef(v: IntRef)
+
+case class BeanByteRef(v: ByteRef)
+
+case class BeanBooleanRef(v: BooleanRef)
+
+case class BeanCharRef(v: CharRef)
+
+case class BeanShortRef(v: ShortRef)
+
+case class BeanLongRef(v: LongRef)
+
+case class BeanFloatRef(v: FloatRef)
+
+case class BeanDoubleRef(v: DoubleRef)
+
+case class BeanFullRef(
+  byte: ByteRef,
+  boolean: BooleanRef,
+  char: CharRef,
+  short: ShortRef,
+  int: IntRef,
+  long: LongRef,
+  float: FloatRef,
+  double: DoubleRef
+)

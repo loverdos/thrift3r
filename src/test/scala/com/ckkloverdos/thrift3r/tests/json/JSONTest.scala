@@ -24,16 +24,16 @@ import com.ckkloverdos.thrift3r.tests.BaseFixture
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 class JSONTest extends BaseFixture {
-  @Test def test() {
-    val bean = Bean(
-      name = "John Woo",
-      age = 36,
-      addresses = Set(
-        Address("Hill Road 1", "Valley City", "FUBAR-ZIP"),
-        Address("Will Moad 2", "Ralley Valley", "Globul-ZIP")
-      )
+  val bean = Bean(
+    name = "John Woo",
+    age = 36,
+    addresses = Set(
+      Address("Hill Road 1", "Valley City", "FUBAR-ZIP"),
+      Address("Will Moad 2", "Ralley Valley", "Globul-ZIP")
     )
+  )
 
+  @Test def test() {
     val sample = """
       {
         "name" : "John Woo",

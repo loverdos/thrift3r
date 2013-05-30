@@ -26,13 +26,13 @@ import org.junit.Assert
 trait BaseFixture {
   final val DefaultThrifter = new Thrift3r()
 
-  protected def good[A <: AnyRef](obj: A, thrifter: Thrift3r = DefaultThrifter) {
+  protected def goodThrift[A <: AnyRef](obj: A, thrifter: Thrift3r = DefaultThrifter) {
     val bytes = thrifter.beanToBytes(obj)
     val bean  = thrifter.bytesToBean(obj.getClass, bytes)
     Assert.assertEquals(obj, bean)
   }
 
-  protected def bad[A <: AnyRef](obj: A, thrifter: Thrift3r = DefaultThrifter) {
+  protected def badThrift[A <: AnyRef](obj: A, thrifter: Thrift3r = DefaultThrifter) {
     try {
       thrifter.beanToBytes(obj)
     } catch {
@@ -45,5 +45,15 @@ trait BaseFixture {
     }
 
     assert(false, "Encoding of %s should have failed".format(obj))
+  }
+
+  protected def sameThrift[A <: AnyRef](x: A, y: A, thrifter: Thrift3r = DefaultThrifter) {
+    val xBytes = thrifter.beanToBytes(x)
+    val yBytes = thrifter.beanToBytes(y)
+    Assert.assertArrayEquals(xBytes, yBytes)
+
+    val x2 = thrifter.bytesToBean(x.getClass, xBytes)
+    val y2 = thrifter.bytesToBean(y.getClass, yBytes)
+    Assert.assertEquals(x2, y2)
   }
 }
