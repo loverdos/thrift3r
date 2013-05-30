@@ -26,37 +26,37 @@ import org.junit.Test
 class PrimitiveRefTest extends BaseFixture {
   @Test def testByteRef() { good(BeanByteRef(1.toByte)) }
 
-  @Test def testNullByteRef() { sameThrift(BeanByteRef(null), BeanByteRef(0.toByte)) }
+  @Test def testNullByteRef() { same(BeanByteRef(null), BeanByteRef(0.toByte)) }
 
   @Test def testBooleanRefT() { good(BeanBooleanRef(true)) }
 
   @Test def testBooleanRefF() { good(BeanBooleanRef(false)) }
 
-  @Test def testNullBooleanRef() { sameThrift(BeanBooleanRef(null), BeanBooleanRef(false))}
+  @Test def testNullBooleanRef() { same(BeanBooleanRef(null), BeanBooleanRef(false))}
 
   @Test def testCharRef() { good(BeanCharRef('Y')) }
 
-  @Test def testNullCharRef() { sameThrift(BeanCharRef(null), BeanCharRef('\u0000')) }
+  @Test def testNullCharRef() { same(BeanCharRef(null), BeanCharRef('\u0000')) }
 
   @Test def testShortRef() { good(BeanShortRef(1.toShort)) }
 
-  @Test def testNullShortRef() { sameThrift(BeanShortRef(null), BeanShortRef(0.toShort)) }
+  @Test def testNullShortRef() { same(BeanShortRef(null), BeanShortRef(0.toShort)) }
 
   @Test def testIntRef() { good(BeanIntRef(1)) }
 
-  @Test def testNullIntRef() { sameThrift(BeanIntRef(null), BeanIntRef(0)) }
+  @Test def testNullIntRef() { same(BeanIntRef(null), BeanIntRef(0)) }
 
   @Test def testLongRef() { good(BeanLongRef(1L)) }
 
-  @Test def testNullLongRef() { sameThrift(BeanLongRef(null), BeanLongRef(0L)) }
+  @Test def testNullLongRef() { same(BeanLongRef(null), BeanLongRef(0L)) }
 
   @Test def testFloatRef() { good(BeanFloatRef(1.1.toFloat)) }
 
-  @Test def testNullFloatRef() { sameThrift(BeanFloatRef(null), BeanFloatRef(0.0.toFloat)) }
+  @Test def testNullFloatRef() { same(BeanFloatRef(null), BeanFloatRef(0.0.toFloat)) }
 
   @Test def testDoubleRef() { good(BeanDoubleRef(1.1)) }
 
-  @Test def testNullDoubleRef() { sameThrift(BeanDoubleRef(null), BeanDoubleRef(0.0)) }
+  @Test def testNullDoubleRef() { same(BeanDoubleRef(null), BeanDoubleRef(0.0)) }
 
   @Test def testFullRef() { good(BeanFullRef(1.toByte, true, 'c', 2.toShort, 3, 4.toLong, 5.0.toFloat, 6.0)) }
 }

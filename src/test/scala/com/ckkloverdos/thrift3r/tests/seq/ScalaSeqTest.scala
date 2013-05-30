@@ -25,6 +25,14 @@ import org.junit.Test
  */
 class ScalaSeqTest extends BaseFixture {
   @Test def testC() { good(BeanCSeq(collection.Seq("One", "Two"))) }
-  @Test def testI() { good(BeanCSeq(collection.immutable.Seq("One", "Two"))) }
-  @Test def testM() { good(BeanCSeq(collection.mutable.Seq("One", "Two"))) }
+
+  @Test def testNullC() { same(BeanCSeq(null), BeanCSeq(collection.Seq())) }
+
+  @Test def testI() { good(BeanISeq(collection.immutable.Seq("One", "Two"))) }
+
+  @Test def testNullI() { same(BeanISeq(null), BeanISeq(collection.immutable.Seq())) }
+
+  @Test def testM() { good(BeanMSeq(collection.mutable.Seq("One", "Two"))) }
+
+  @Test def testNullM() { same(BeanMSeq(null), BeanMSeq(collection.mutable.Seq())) }
 }

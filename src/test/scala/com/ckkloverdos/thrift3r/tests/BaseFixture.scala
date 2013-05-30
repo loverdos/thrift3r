@@ -80,4 +80,9 @@ trait BaseFixture {
     val y2 = thrifter.jsonToBean(y.getClass, yJSON)
     require(x2 == y2)
   }
+
+  protected def same[A <: AnyRef](x: A, y: A, thrifter: Thrift3r = DefaultThrifter) {
+    sameThrift(x, y, thrifter)
+    sameJSON(x, y, thrifter)
+  }
 }
