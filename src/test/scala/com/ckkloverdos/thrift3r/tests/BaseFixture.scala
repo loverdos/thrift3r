@@ -29,7 +29,21 @@ trait BaseFixture {
   protected def goodThrift[A <: AnyRef](obj: A, thrifter: Thrift3r = DefaultThrifter) {
     val bytes = thrifter.beanToBytes(obj)
     val bean  = thrifter.bytesToBean(obj.getClass, bytes)
-    Assert.assertEquals(obj, bean)
+    require(obj == bean)
+  }
+
+  protected def goodJSON[A <: AnyRef](obj: A, thrifter: Thrift3r = DefaultThrifter) {
+    println(obj)
+    val json = thrifter.beanToJSON(obj)
+    println(json)
+    val bean  = thrifter.jsonToBean(obj.getClass, json)
+    println(bean)
+    require(obj == bean)
+  }
+
+  protected def good[A <: AnyRef](obj: A, thrifter: Thrift3r = DefaultThrifter) {
+    goodThrift(obj, thrifter)
+    goodJSON(obj, thrifter)
   }
 
   protected def badThrift[A <: AnyRef](obj: A, thrifter: Thrift3r = DefaultThrifter) {
@@ -55,5 +69,15 @@ trait BaseFixture {
     val x2 = thrifter.bytesToBean(x.getClass, xBytes)
     val y2 = thrifter.bytesToBean(y.getClass, yBytes)
     Assert.assertEquals(x2, y2)
+  }
+
+  protected def sameJSON[A <: AnyRef](x: A, y: A, thrifter: Thrift3r = DefaultThrifter) {
+    val xJSON = thrifter.beanToJSON(x)
+    val yJSON = thrifter.beanToJSON(y)
+    require(xJSON == yJSON)
+
+    val x2 = thrifter.jsonToBean(x.getClass, xJSON)
+    val y2 = thrifter.jsonToBean(y.getClass, yJSON)
+    require(x2 == y2)
   }
 }

@@ -17,10 +17,11 @@
 package com.ckkloverdos.thrift3r.protocol
 package helper
 
-import scala.annotation.tailrec
 import com.ckkloverdos.thrift3r.codec.Codec
-import scala.collection.{SortedMap, GenMap, GenTraversable}
+import com.ckkloverdos.thrift3r.codec.enumeration.EnumCodec
 import com.ckkloverdos.thrift3r.descriptor.{StructDescriptor, FieldInfo}
+import scala.annotation.tailrec
+import scala.collection.{SortedMap, GenMap, GenTraversable}
 
 
 /**
@@ -314,6 +315,21 @@ object ProtocolHelpers {
 
       case structProtocol: FieldsByIDStructProtocol ⇒
         readFieldsByID(structProtocol)
+    }
+  }
+
+  final def writeEnum(protocol: Protocol, value: Enum[_]) =
+    protocol.getEnumProtocol.writeEnum(value)
+
+  final def readEnum[E <: Enum[_]](protocol: Protocol, codec: EnumCodec[E]) = {
+    protocol.getEnumProtocol match {
+      case enumProtocol: IntEnumProtocol ⇒
+        val ordinal = enumProtocol.readEnum()
+        codec.fromOrdinal(ordinal)
+
+      case enumProtocol: StringEnumProtocol ⇒
+        val name = enumProtocol.readEnum()
+        codec.fromNameIgnoringCase(name)
     }
   }
 }

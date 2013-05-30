@@ -24,15 +24,21 @@ import org.junit.Test
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 class MiscTest extends BaseFixture {
-  @Test def testClass() { goodThrift(BeanClass(classOf[MiscTest])) }
+  @Test def testClass() {
+    val obj = BeanClass(classOf[MiscTest])
+    good(obj)
+    goodJSON(obj)
+  }
 
-  @Test def testOptionIntNone() { badThrift(BeanOptionInt(None)) }
+  @Test def testOptionIntNone() {
+    badThrift(BeanOptionInt(None))
+  }
   @Test def testOptionIntSome() { badThrift(BeanOptionInt(Some(1))) }
 
-  @Test def testOptionIntRefSome() { goodThrift(BeanOptionIntRef(Some(1))) }
-  @Test def testOptionIntRefNone() { goodThrift(BeanOptionIntRef(None)) }
+  @Test def testOptionIntRefSome() { good(BeanOptionIntRef(Some(1))) }
+  @Test def testOptionIntRefNone() { good(BeanOptionIntRef(None)) }
 
-  @Test def testOptionStructSomeSome() { goodThrift(BeanOptionStruct(Some(BeanOptionString(Some("yes"))))) }
-  @Test def testOptionStructSomeNone() { goodThrift(BeanOptionStruct(Some(BeanOptionString(None)))) }
-  @Test def testOptionStructNone() { goodThrift(BeanOptionStruct(None)) }
+  @Test def testOptionStructSomeSome() { good(BeanOptionStruct(Some(BeanOptionString(Some("yes"))))) }
+  @Test def testOptionStructSomeNone() { good(BeanOptionStruct(Some(BeanOptionString(None)))) }
+  @Test def testOptionStructNone() { good(BeanOptionStruct(None)) }
 }

@@ -17,7 +17,7 @@
 package com.ckkloverdos.thrift3r.protocol.thrift
 
 import com.ckkloverdos.thrift3r.codec.Codec
-import com.ckkloverdos.thrift3r.protocol.{StrictFieldsStructProtocol, SizedMapProtocol, SizedSetProtocol, SizedListProtocol, Protocol}
+import com.ckkloverdos.thrift3r.protocol.{IntEnumProtocol, StrictFieldsStructProtocol, SizedMapProtocol, SizedSetProtocol, SizedListProtocol, Protocol}
 import org.apache.thrift.protocol.{TMap, TSet, TStruct, TField, TList, TProtocol}
 
 /**
@@ -26,6 +26,7 @@ import org.apache.thrift.protocol.{TMap, TSet, TStruct, TField, TList, TProtocol
  */
 class TProtocolAdapter(tprotocol: TProtocol)
   extends Protocol
+  with    IntEnumProtocol
   with    SizedListProtocol
   with    SizedSetProtocol
   with    SizedMapProtocol
@@ -35,21 +36,25 @@ class TProtocolAdapter(tprotocol: TProtocol)
     tprotocol.getTransport.flush()
   }
 
-  def writeBool(value: Boolean) { tprotocol.writeBool(value) }
+  def writeEnum(value: Enum[_]) = tprotocol.writeI32(value.ordinal())
 
-  def writeInt8(value: Byte) {tprotocol.writeByte(value) }
+  def writeBool(value: Boolean) = tprotocol.writeBool(value)
 
-  def writeInt16(value: Short) { tprotocol.writeI16(value) }
+  def writeInt8(value: Byte) = tprotocol.writeByte(value)
 
-  def writeInt32(value: Int) { tprotocol.writeI32(value) }
+  def writeInt16(value: Short) = tprotocol.writeI16(value)
 
-  def writeInt64(value: Long) { tprotocol.writeI64(value) }
+  def writeInt32(value: Int) = tprotocol.writeI32(value)
 
-  def writeFloat64(value: Double) { tprotocol.writeDouble(value) }
+  def writeInt64(value: Long) = tprotocol.writeI64(value)
 
-  def writeString(value: String) { tprotocol.writeString(value) }
+  def writeFloat64(value: Double) = tprotocol.writeDouble(value)
+
+  def writeString(value: String) = tprotocol.writeString(value)
 
   //  def writeBinary(value: ByteBuffer) { tprotocol.writeBinary(value) }
+
+  def readEnum() = tprotocol.readI32()
 
   def readBool() = tprotocol.readBool()
 

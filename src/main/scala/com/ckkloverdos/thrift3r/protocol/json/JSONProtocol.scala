@@ -17,7 +17,7 @@
 package com.ckkloverdos.thrift3r.protocol.json
 
 import com.ckkloverdos.thrift3r.codec.Codec
-import com.ckkloverdos.thrift3r.protocol.{FieldsByNameStructProtocol, UnsizedMapProtocol, StructProtocol, UnsizedSetProtocol, UnsizedListProtocol, Protocol}
+import com.ckkloverdos.thrift3r.protocol.{StringEnumProtocol, FieldsByNameStructProtocol, UnsizedMapProtocol, UnsizedSetProtocol, UnsizedListProtocol, Protocol}
 import com.fasterxml.jackson.core.{JsonFactory, JsonLocation, JsonToken, JsonParser, JsonGenerator}
 import java.io.StringWriter
 
@@ -30,16 +30,20 @@ class JSONProtocol(
   jsonGen: JsonGenerator,
   _jsonParser: JsonParser
 ) extends Protocol
+  with    StringEnumProtocol
   with    UnsizedListProtocol // don't know the list size before reading it all
   with    UnsizedSetProtocol
   with    UnsizedMapProtocol
   with    FieldsByNameStructProtocol {
 
-  protected val jsonParser = new PeepingJSONParser(_jsonParser)
+  protected val jsonParser = new JSONParser(_jsonParser)
 
   def flush() {
     if(jsonGen ne null) { jsonGen.flush() }
   }
+
+
+  def writeEnum(value: Enum[_]) = jsonGen.writeString(value.toString)
 
   def writeBool(value: Boolean) = jsonGen.writeBoolean(value)
 
@@ -54,6 +58,8 @@ class JSONProtocol(
   def writeFloat64(value: Double) = jsonGen.writeNumber(value)
 
   def writeString(value: String) = jsonGen.writeString(value)
+
+  def readEnum() = jsonParser.nextString
 
   def readBool() = jsonParser.nextBool
 
@@ -77,50 +83,82 @@ class JSONProtocol(
 
   def writeListEnd() = jsonGen.writeEndArray()
 
-  protected def requireToken(expected: JsonToken, token: JsonToken, location: JsonLocation) {
+  protected def requireToken(expected: JsonToken, token: JsonToken, tokenText: String, location: JsonLocation) {
     require(
       token == expected,
-      "Expected %s but found %s. %s".format(
+      "Expected %s but found %s(%s). %s".format(
         expected,
         token,
+        tokenText,
         location
       )
     )
   }
 
   def readListBegin()  {
+//    println("+ readListBegin()")
     val token = jsonParser.nextToken()
-    requireToken(JsonToken.START_ARRAY, token, jsonParser.getCurrentLocation)
+
+    val tokenText = jsonParser.getText
+    val location = jsonParser.getCurrentLocation
+    requireToken(JsonToken.START_ARRAY, token, tokenText, location)
   }
 
-  def readListElement[T](elementCodec: Codec[T]) =
+  def readListElement[T](elementCodec: Codec[T]) = {
+//    println("+ readListElement(%s)".format(elementCodec))
     elementCodec.decode(this)
+  }
 
   def readListEnd() = {
+//    println("+ readListEnd()")
     jsonParser.peepNextToken() match {
       case JsonToken.END_ARRAY ⇒
         jsonParser.nextToken()
         true
 
-      case _ ⇒
+      case token ⇒
         false
     }
   }
 
   // SET (delegates to the LIST implementation)
-  def writeSetBegin[T](elementCodec: Codec[T]) = writeListBegin(elementCodec)
+  def writeSetBegin[T](elementCodec: Codec[T]) =
+    jsonGen.writeStartArray()
 
   def writeSetElement[T](element: T, elementCodec: Codec[T]) =
     elementCodec.encode(this, element)
 
-  def writeSetEnd() = writeListEnd()
+  def writeSetEnd() =
+    jsonGen.writeEndArray()
 
-  def readSetBegin() = readListBegin()
+  def readSetBegin() = {
+//    println("+ readSetBegin()")
+    val token = jsonParser.nextToken()
 
-  def readSetElement[T](elementCodec: Codec[T]) =
-    elementCodec.decode(this)
+    val tokenText = jsonParser.getText
+    val location = jsonParser.getCurrentLocation
+    requireToken(JsonToken.START_ARRAY, token, tokenText, location)
+  }
 
-  def readSetEnd() = readListEnd()
+  def readSetElement[T](elementCodec: Codec[T]) = {
+//    println("+ readSetElement(%s)".format(elementCodec))
+    val value = elementCodec.decode(this)
+//    println("+   readSetElement() => %s".format(value))
+    value
+  }
+
+  def readSetEnd() = {
+    val value = jsonParser.peepNextToken() match {
+      case JsonToken.END_ARRAY ⇒
+        jsonParser.nextToken()
+        true
+
+      case token ⇒
+        false
+    }
+//    println("+ readSetEnd() = %s".format(value))
+    value
+  }
 
   // MAP
   def writeMapBegin[K, V](keyCodec: Codec[K], valueCodec: Codec[V]) = jsonGen.writeStartObject()
@@ -152,7 +190,10 @@ class JSONProtocol(
 
   def readMapBegin() {
     val token = jsonParser.nextToken()
-    requireToken(JsonToken.START_OBJECT, token, jsonParser.getCurrentLocation)
+
+    val tokenText = jsonParser.getText
+    val location = jsonParser.getCurrentLocation
+    requireToken(JsonToken.START_OBJECT, token, tokenText, location)
   }
 
 
@@ -200,33 +241,37 @@ class JSONProtocol(
 
   def writeStructEnd() = jsonGen.writeEndObject()
 
-  def readFieldBegin() = jsonParser.nextString
+  def readFieldBegin() = {
+//    println("+ readFieldBegin()")
+    jsonParser.nextString
+  }
 
-  def readField[T](fieldCodec: Codec[T], name: String) = fieldCodec.decode(this)
+  def readField[T](fieldCodec: Codec[T], name: String) = {
+//    println("+ readField(%s, %s)".format(name, fieldCodec))
+    val value = fieldCodec.decode(this)
+//    println("+   readField(%s) => %s".format(name, value))
+    value
+  }
 
-  def readFieldEnd() {}
+  def readFieldEnd() {
+//    println("+ readFieldEnd()")
+  }
 
   def readStructBegin() {
+//    println("+ readStructBegin()")
     val token = jsonParser.nextToken()
-    require(
-      token == JsonToken.START_OBJECT,
-      "Expected %s but found %s. %s".format(
-        JsonToken.START_OBJECT,
-        token,
-        jsonParser.getCurrentLocation
-      )
-    )
+
+    val tokenText = jsonParser.getText
+    val location = jsonParser.getCurrentLocation
+    requireToken(JsonToken.START_OBJECT, token, tokenText, location)
   }
 
   def readStructEnd() {
+//    println("+ readStructEnd()")
     val token = jsonParser.nextToken()
-    require(
-      token == JsonToken.END_OBJECT,
-      "Expected %s but found %s. %s".format(
-        JsonToken.END_OBJECT,
-        token,
-        jsonParser.getCurrentLocation
-      )
-    )
+
+    val tokenText = jsonParser.getText
+    val location = jsonParser.getCurrentLocation
+    requireToken(JsonToken.END_OBJECT, token, tokenText, location)
   }
 }

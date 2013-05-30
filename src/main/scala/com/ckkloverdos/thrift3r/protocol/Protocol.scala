@@ -16,14 +16,12 @@
 
 package com.ckkloverdos.thrift3r.protocol
 
-import java.io.Closeable
-
 
 /**
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-trait Protocol { this: ListProtocol with SetProtocol with StructProtocol with MapProtocol ⇒
+trait Protocol { this: EnumProtocol with ListProtocol with SetProtocol with StructProtocol with MapProtocol ⇒
   def flush()
 
   def writeBool(value: Boolean)
@@ -49,14 +47,13 @@ trait Protocol { this: ListProtocol with SetProtocol with StructProtocol with Ma
 
 //  def writeBinary(value: ByteBuffer)
 
+  def getEnumProtocol: EnumProtocol = this
+
   def getListProtocol: ListProtocol = this
-  def supportsSizedListProtocol = this.isInstanceOf[SizedListProtocol]
 
   def getSetProtocol: SetProtocol = this
-  def supportsSizedSetProtocol = this.isInstanceOf[SizedSetProtocol]
 
   def getMapProtocol: MapProtocol = this
-  def supportsSizedMapProtocol = this.isInstanceOf[SizedMapProtocol]
 
   def getStructProtocol: StructProtocol = this
 }

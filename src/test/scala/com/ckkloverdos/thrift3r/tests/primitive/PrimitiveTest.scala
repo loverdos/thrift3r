@@ -24,23 +24,23 @@ import org.junit.Test
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 class PrimitiveTest extends BaseFixture {
-  @Test def testByte() { goodThrift(BeanByte(1.toByte)) }
+  @Test def testByte() { good(BeanByte(1.toByte)) }
 
-  @Test def testBooleanT() { goodThrift(BeanBoolean(true)) }
+  @Test def testBooleanT() { good(BeanBoolean(true)) }
 
-  @Test def testBooleanF() { goodThrift(BeanBoolean(false)) }
+  @Test def testBooleanF() { good(BeanBoolean(false)) }
 
-  @Test def testChar() { goodThrift(BeanChar('Y')) }
+  @Test def testChar() { good(BeanChar('Y')) }
 
-  @Test def testShort() { goodThrift(BeanShort(1.toShort)) }
+  @Test def testShort() { good(BeanShort(1.toShort)) }
 
-  @Test def testInt() { goodThrift(BeanInt(1)) }
+  @Test def testInt() { good(BeanInt(1)) }
 
-  @Test def testLong() { goodThrift(BeanLong(1L)) }
+  @Test def testLong() { good(BeanLong(1L)) }
 
-  @Test def testFloat() { goodThrift(BeanFloat(1.1.toFloat)) }
+  @Test def testFloat() { good(BeanFloat(1.1.toFloat)) }
 
-  @Test def testDouble() { goodThrift(BeanDouble(1.1)) }
+  @Test def testDouble() { good(BeanDouble(1.1)) }
 
-  @Test def testFull() { goodThrift(BeanFull(1.toByte, true, 'c', 2.toShort, 3, 4.toLong, 5.0.toFloat, 6.0)) }
+  @Test def testFull() { good(BeanFull(1.toByte, true, 'c', 2.toShort, 3, 4.toLong, 5.0.toFloat, 6.0)) }
 }

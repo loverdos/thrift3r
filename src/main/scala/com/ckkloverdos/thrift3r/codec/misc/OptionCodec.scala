@@ -20,6 +20,7 @@ package misc
 import com.ckkloverdos.thrift3r.TTypeEnum
 import com.ckkloverdos.thrift3r.protocol.{UnsizedSetProtocol, SizedSetProtocol, Protocol}
 import com.google.common.reflect.TypeToken
+import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
 
 /**
  *
@@ -36,8 +37,7 @@ final case class OptionCodec[T](
     val setProtocol = protocol.getSetProtocol
     value match {
       case null | None ⇒
-        setProtocol.writeSetBegin(elementCodec, 0)
-        setProtocol.writeSetEnd()
+        setProtocol.writeEmptySet(elementCodec)
 
       case Some(element) ⇒
         setProtocol.writeSetBegin(elementCodec, 1)
@@ -49,7 +49,9 @@ final case class OptionCodec[T](
   def decode(protocol: Protocol) = {
     protocol.getSetProtocol match {
       case setProtocol: SizedSetProtocol ⇒
-        val isEmpty = setProtocol.readSetBegin() == 0
+        val size = setProtocol.readSetBegin()
+        val isEmpty = size == 0
+        require(isEmpty || size == 1)
         val option = if(isEmpty) None else {
           val element = setProtocol.readSetElement(elementCodec)
           Some(element)
@@ -64,7 +66,8 @@ final case class OptionCodec[T](
         }
         else {
           val element = setProtocol.readSetElement(elementCodec)
-          setProtocol.readSetEnd()
+          val isEnd = setProtocol.readSetEnd()
+//          require(isEnd)
           Some(element)
         }
     }

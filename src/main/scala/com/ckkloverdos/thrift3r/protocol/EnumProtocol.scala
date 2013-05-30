@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r
-package tests.misc
+package com.ckkloverdos.thrift3r.protocol
 
 /**
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case class BeanOptionInt(optInt: Option[Int])
+trait EnumProtocol { this: Protocol ⇒
+  def writeEnum(value: Enum[_])
+}
 
-case class BeanOptionIntRef(optIntRef: Option[IntRef])
-case class BeanOptionString(optString: Option[String])
-case class BeanOptionStruct(optBeanOptionString: Option[BeanOptionString])
+trait IntEnumProtocol extends EnumProtocol { this: Protocol ⇒
+  def readEnum(): Int
+}
+
+trait StringEnumProtocol extends EnumProtocol { this: Protocol ⇒
+  def readEnum(): String
+}

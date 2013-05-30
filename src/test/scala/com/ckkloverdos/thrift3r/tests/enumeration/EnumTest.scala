@@ -24,5 +24,9 @@ import org.junit.Test
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 class EnumTest extends BaseFixture {
-  @Test def test() { goodThrift(BeanEnum(Days.MON, Days.FRI)) }
+  @Test def test() {
+    val obj = BeanEnum(Days.MON, Days.FRI)
+    good(obj)
+    goodJSON(obj)
+  }
 }
