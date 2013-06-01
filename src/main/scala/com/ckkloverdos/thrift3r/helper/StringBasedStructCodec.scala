@@ -33,11 +33,17 @@ final case class StringBasedStructCodec[T](
   typeToken: TypeToken[T],
   fromStringRepr: (String) ⇒ T,
   toStringRepr: (T) ⇒ String
-) extends Codec[T] with UnsupportedDirectStringTransformations[T] {
+) extends Codec[T] {
 
   def binReprType = BinReprType.STRUCT
 
   def encode(protocol: Protocol, value: T) = protocol.writeString(toStringRepr(value))
 
   def decode(protocol: Protocol) = fromStringRepr(protocol.readString())
+
+  def toDirectString(value: T) = toStringRepr(value)
+
+  def fromDirectString(value: String) = fromStringRepr(value)
+
+  override def hasDirectStringRepresentation = true // by design
 }

@@ -43,7 +43,7 @@ trait Codec[T] {
 
   def decode(protocol: Protocol): T
 
-  final def hasDirectStringRepresentation = binReprType.hasDirectStringRepresentation
+  def hasDirectStringRepresentation = binReprType.hasDirectStringRepresentation
 
   def toDirectString(value: T): String
 
