@@ -28,6 +28,14 @@ package object thrift3r {
   type JType = java.lang.reflect.Type
   type JClass = Class[_]
 
+  type Bool = Boolean
+  type Int8 = Byte
+  type Int16 = Short
+  type Int32 = Int
+  type Int64 = Long
+  type Float32 = Float
+  type Float64 = Double
+
   type ByteRef = java.lang.Byte
   type BooleanRef = java.lang.Boolean
   type CharRef = java.lang.Character

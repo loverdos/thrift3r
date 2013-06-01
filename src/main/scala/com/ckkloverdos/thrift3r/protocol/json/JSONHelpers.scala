@@ -16,10 +16,11 @@
 
 package com.ckkloverdos.thrift3r.protocol.json
 
+import com.ckkloverdos.thrift3r.protocol.Protocol
+import com.ckkloverdos.thrift3r.protocol.json.jackson.{JacksonJSONReader, JacksonJSONWriter}
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
-import java.io.{OutputStream, Reader, InputStream, Writer}
-import com.ckkloverdos.thrift3r.protocol.Protocol
+import java.io.{StringReader, Reader, Writer}
 
 /**
  *
@@ -29,32 +30,51 @@ object JSONHelpers {
   final val StdJsonFactory = new JsonFactory()
   final val StdPrettyPrinter = new DefaultPrettyPrinter()
 
-  @inline final def generatorOfWriter(writer: Writer, prettyPrint: Boolean = true) = {
-    val jsonGen = StdJsonFactory.createGenerator(writer)
-    if(prettyPrint) { jsonGen.setPrettyPrinter(StdPrettyPrinter) }
-    jsonGen
+
+  final def jacksonWriterOf(writer: Writer, prettyPrint: Boolean = true, factory: JsonFactory = StdJsonFactory) = {
+    val gen = factory.createGenerator(writer)
+    if(prettyPrint) { gen.setPrettyPrinter(StdPrettyPrinter) }
+    new JacksonJSONWriter(gen, factory)
   }
 
-  @inline final def parserOfReader(reader: Reader) = StdJsonFactory.createParser(reader)
+  final def jacksonReaderOf(reader: Reader, factory: JsonFactory = StdJsonFactory) = {
+    val parser = factory.createParser(reader)
 
-  @inline final def jsonProtocolForInput(reader: Reader): Protocol =
-    new JSONProtocol(
-      StdJsonFactory,
-      null,
-      parserOfReader(reader)
-    )
+    new JacksonJSONReader(parser, factory)
+  }
 
-  @inline final def jsonProtocolForOutput(writer: Writer, prettyPrint: Boolean = true) =
+  final def jacksonProtocolForInput(reader: Reader, factory: JsonFactory = StdJsonFactory): Protocol = {
     new JSONProtocol(
-      StdJsonFactory,
-      generatorOfWriter(writer, prettyPrint),
+      jacksonReaderOf(reader, factory),
       null
     )
+  }
 
-  @inline final def jsonProtocolForIO(reader: Reader, writer: Writer, prettyPrint: Boolean = true) =
+  final def jacksonProtocolForInputString(json: String, factory: JsonFactory = StdJsonFactory): Protocol = {
+    jacksonProtocolForInput(new StringReader(json), factory)
+  }
+
+  final def jacksonProtocolForOutput(
+    writer: Writer,
+    prettyPrint: Boolean = true,
+    factory: JsonFactory = StdJsonFactory
+  ) = {
     new JSONProtocol(
-      StdJsonFactory,
-      generatorOfWriter(writer, prettyPrint),
-      parserOfReader(reader)
+      null,
+      jacksonWriterOf(writer, prettyPrint, factory)
     )
+  }
+
+  final def jacksonProtocolForIO(
+    reader: Reader,
+    writer: Writer,
+    prettyPrint: Boolean = true,
+    factory: JsonFactory = StdJsonFactory
+  ) = {
+    new JSONProtocol(
+      jacksonReaderOf(reader, factory),
+      jacksonWriterOf(writer, prettyPrint, factory)
+    )
+  }
+
 }

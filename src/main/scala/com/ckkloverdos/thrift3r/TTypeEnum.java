@@ -21,6 +21,8 @@ import org.apache.thrift.protocol.TType;
 /**
  * These are the types supported at the binary codec level.
  *
+ * TODO: We do not need to be thrift-specific here. We already are more generic.
+ *
  * @see org.apache.thrift.protocol.TType
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>

@@ -366,7 +366,7 @@ case class Thrift3r(
 
   def beanToJSON[A <: AnyRef](bean: A, prettyPrint: Boolean = true): String = {
     val writer = new StringWriter
-    val protocol = JSONHelpers.jsonProtocolForOutput(writer)
+    val protocol = JSONHelpers.jacksonProtocolForOutput(writer)
 
     val codec = codecOfBean(bean)
     ProtocolHelpers.encodeAndFlush(protocol, bean, codec)
@@ -375,8 +375,7 @@ case class Thrift3r(
   }
 
   def jsonToBean[A <: AnyRef](beanClass: Class[A], json: String): A = {
-    val reader = new StringReader(json)
-    val protocol = JSONHelpers.jsonProtocolForInput(reader)
+    val protocol = JSONHelpers.jacksonProtocolForInputString(json)
     val codec = codecOfClass(beanClass)
     codec.decode(protocol)
   }

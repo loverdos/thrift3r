@@ -28,7 +28,7 @@ import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case class EnumCodec[E <: Enum[_]](enumClass: Class[E]) extends Codec[E] with CodecToString {
+final case class EnumCodec[E <: Enum[_]](enumClass: Class[E]) extends Codec[E] with CodecToString {
   private[this] final val enumConstants = enumClass.getEnumConstants
   private[this] final val enumConstantsByName = enumConstants.map(e ⇒ (e.name(), e)).toMap
   private[this] final val enumConstantsByNameLowerCase = enumConstants.map(e ⇒ (e.name().toLowerCase(Locale.US), e)).toMap
@@ -54,5 +54,5 @@ case class EnumCodec[E <: Enum[_]](enumClass: Class[E]) extends Codec[E] with Co
 
   def toDirectString(value: E) = value.toString
 
-  def fromDirectString(value: String) = fromNameIgnoringCase(value)
+  @inline def fromDirectString(value: String) = fromNameIgnoringCase(value)
 }

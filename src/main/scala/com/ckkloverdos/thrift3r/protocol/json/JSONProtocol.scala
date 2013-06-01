@@ -18,17 +18,15 @@ package com.ckkloverdos.thrift3r.protocol.json
 
 import com.ckkloverdos.thrift3r.codec.Codec
 import com.ckkloverdos.thrift3r.protocol.{StringEnumProtocol, FieldsByNameStructProtocol, UnsizedMapProtocol, UnsizedSetProtocol, UnsizedListProtocol, Protocol}
-import com.fasterxml.jackson.core.{JsonFactory, JsonLocation, JsonToken, JsonParser, JsonGenerator}
-import java.io.StringWriter
+import java.io.{StringReader, StringWriter}
 
 /**
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-class JSONProtocol(
-  jsonFactory: JsonFactory,
-  jsonGen: JsonGenerator,
-  _jsonParser: JsonParser
+final class JSONProtocol(
+  jsonReader: JSONReader,
+  jsonWriter: JSONWriter
 ) extends Protocol
   with    StringEnumProtocol
   with    UnsizedListProtocol // don't know the list size before reading it all
@@ -36,54 +34,51 @@ class JSONProtocol(
   with    UnsizedMapProtocol
   with    FieldsByNameStructProtocol {
 
-  protected val jsonParser = new JSONParser(_jsonParser)
-
   def flush() {
-    if(jsonGen ne null) { jsonGen.flush() }
+    if(jsonWriter ne null) { jsonWriter.flush() }
   }
 
+  def writeEnum(value: Enum[_]) = jsonWriter.writeString(value.toString)
 
-  def writeEnum(value: Enum[_]) = jsonGen.writeString(value.toString)
+  def writeBool(value: Boolean) = jsonWriter.writeBool(value)
 
-  def writeBool(value: Boolean) = jsonGen.writeBoolean(value)
+  def writeInt8(value: Byte) = jsonWriter.writeInt8(value)
 
-  def writeInt8(value: Byte) = jsonGen.writeNumber(value.toShort)
+  def writeInt16(value: Short) = jsonWriter.writeInt16(value)
 
-  def writeInt16(value: Short) = jsonGen.writeNumber(value)
+  def writeInt32(value: Int) = jsonWriter.writeInt32(value)
 
-  def writeInt32(value: Int) = jsonGen.writeNumber(value)
+  def writeInt64(value: Long) = jsonWriter.writeInt64(value)
 
-  def writeInt64(value: Long) = jsonGen.writeNumber(value)
+  def writeFloat64(value: Double) = jsonWriter.writeFloat64(value)
 
-  def writeFloat64(value: Double) = jsonGen.writeNumber(value)
+  def writeString(value: String) = jsonWriter.writeString(value)
 
-  def writeString(value: String) = jsonGen.writeString(value)
+  def readEnum() = jsonReader.readString()
 
-  def readEnum() = jsonParser.nextString
+  def readBool() = jsonReader.readBool()
 
-  def readBool() = jsonParser.nextBool
+  def readInt8() = jsonReader.readInt8()
 
-  def readInt8() = jsonParser.nextInt8
+  def readInt16() = jsonReader.readInt16()
 
-  def readInt16() = jsonParser.nextInt16
+  def readInt32() = jsonReader.readInt32()
 
-  def readInt32() = jsonParser.nextInt32
+  def readInt64() = jsonReader.readInt64()
 
-  def readInt64() = jsonParser.nextInt64
+  def readFloat64() = jsonReader.readFloat64()
 
-  def readFloat64() = jsonParser.nextFloat64
-
-  def readString() = jsonParser.nextString
+  def readString() = jsonReader.readString()
 
   // LIST
-  def writeListBegin[T](elementCodec: Codec[T]) = jsonGen.writeStartArray()
+  def writeListBegin[T](elementCodec: Codec[T]) = jsonWriter.writeArrayBegin()
 
   def writeListElement[T](element: T, elementCodec: Codec[T]) =
     elementCodec.encode(this, element)
 
-  def writeListEnd() = jsonGen.writeEndArray()
+  def writeListEnd() = jsonWriter.writeArrayEnd()
 
-  protected def requireToken(expected: JsonToken, token: JsonToken, tokenText: String, location: JsonLocation) {
+  protected def requireToken(expected: JSONToken, token: JSONToken, tokenText: String, location: TextLocation) {
     require(
       token == expected,
       "Expected %s but found %s(%s). %s".format(
@@ -96,24 +91,20 @@ class JSONProtocol(
   }
 
   def readListBegin()  {
-//    println("+ readListBegin()")
-    val token = jsonParser.nextToken()
+    val token = jsonReader.nextToken()
 
-    val tokenText = jsonParser.getText
-    val location = jsonParser.getCurrentLocation
-    requireToken(JsonToken.START_ARRAY, token, tokenText, location)
+    val tokenText = jsonReader.currentText()
+    val location = jsonReader.currentLocation()
+    requireToken(JSONToken.ARRAY_START, token, tokenText, location)
   }
 
-  def readListElement[T](elementCodec: Codec[T]) = {
-//    println("+ readListElement(%s)".format(elementCodec))
+  def readListElement[T](elementCodec: Codec[T]) =
     elementCodec.decode(this)
-  }
 
   def readListEnd() = {
-//    println("+ readListEnd()")
-    jsonParser.peepNextToken() match {
-      case JsonToken.END_ARRAY ⇒
-        jsonParser.nextToken()
+    jsonReader.peepNextToken() match {
+      case JSONToken.ARRAY_END ⇒
+        jsonReader.nextToken()
         true
 
       case token ⇒
@@ -123,45 +114,38 @@ class JSONProtocol(
 
   // SET (delegates to the LIST implementation)
   def writeSetBegin[T](elementCodec: Codec[T]) =
-    jsonGen.writeStartArray()
+    jsonWriter.writeArrayBegin()
 
   def writeSetElement[T](element: T, elementCodec: Codec[T]) =
     elementCodec.encode(this, element)
 
   def writeSetEnd() =
-    jsonGen.writeEndArray()
+    jsonWriter.writeArrayEnd()
 
   def readSetBegin() = {
-//    println("+ readSetBegin()")
-    val token = jsonParser.nextToken()
+    val token = jsonReader.nextToken()
 
-    val tokenText = jsonParser.getText
-    val location = jsonParser.getCurrentLocation
-    requireToken(JsonToken.START_ARRAY, token, tokenText, location)
+    val tokenText = jsonReader.currentText()
+    val location = jsonReader.currentLocation()
+    requireToken(JSONToken.ARRAY_START, token, tokenText, location)
   }
 
-  def readSetElement[T](elementCodec: Codec[T]) = {
-//    println("+ readSetElement(%s)".format(elementCodec))
-    val value = elementCodec.decode(this)
-//    println("+   readSetElement() => %s".format(value))
-    value
-  }
+  def readSetElement[T](elementCodec: Codec[T]) =
+    elementCodec.decode(this)
 
   def readSetEnd() = {
-    val value = jsonParser.peepNextToken() match {
-      case JsonToken.END_ARRAY ⇒
-        jsonParser.nextToken()
+    jsonReader.peepNextToken() match {
+      case JSONToken.ARRAY_END ⇒
+        jsonReader.nextToken()
         true
 
       case token ⇒
         false
     }
-//    println("+ readSetEnd() = %s".format(value))
-    value
   }
 
   // MAP
-  def writeMapBegin[K, V](keyCodec: Codec[K], valueCodec: Codec[V]) = jsonGen.writeStartObject()
+  def writeMapBegin[K, V](keyCodec: Codec[K], valueCodec: Codec[V]) = jsonWriter.writeObjectBegin()
 
   def writeMapElement[K, V](key: K, keyCodec: Codec[K], value: V, valueCodec: Codec[V]) {
     // generate a string representation of the key
@@ -173,32 +157,30 @@ class JSONProtocol(
       case false ⇒
         // The key may be a full blown struct
         val keyWriter = new StringWriter()
-        val keyJsonGen = jsonFactory.createGenerator(keyWriter)
-        val keyJsonProtocol = new JSONProtocol(jsonFactory, keyJsonGen, jsonParser)
+        val keyJsonWriter = jsonWriter.newJSONWriter(keyWriter)
+        val keyJsonProtocol = new JSONProtocol(jsonReader, keyJsonWriter)
         keyCodec.encode(keyJsonProtocol, key)
-        keyJsonGen.flush()
-        keyJsonGen.close()
+        keyJsonWriter.flush()
         keyWriter.toString
     }
     
-    jsonGen.writeFieldName(keyString)
-    jsonGen.writeRaw(':')
+    jsonWriter.writeFieldName(keyString)
     valueCodec.encode(this, value)
   }
 
-  def writeMapEnd() = jsonGen.writeEndObject()
+  def writeMapEnd() = jsonWriter.writeObjectEnd()
 
   def readMapBegin() {
-    val token = jsonParser.nextToken()
+    val token = jsonReader.nextToken()
 
-    val tokenText = jsonParser.getText
-    val location = jsonParser.getCurrentLocation
-    requireToken(JsonToken.START_OBJECT, token, tokenText, location)
+    val tokenText = jsonReader.currentText()
+    val location = jsonReader.currentLocation()
+    requireToken(JSONToken.OBJECT_START, token, tokenText, location)
   }
 
 
   def readMapElement[K, V](keyCodec: Codec[K], valueCodec: Codec[V]): (K, V) = {
-    val keyString = jsonParser.getValueAsString
+    val keyString = jsonReader.readString()
     val key = keyCodec.hasDirectStringRepresentation match {
       case true ⇒
         // Optimize via direct string support
@@ -206,8 +188,8 @@ class JSONProtocol(
 
       case false ⇒
         // Full-blown decoding
-        val keyJsonParser = jsonFactory.createParser(keyString)
-        val keyJsonProtocol = new JSONProtocol(jsonFactory, jsonGen, keyJsonParser)
+        val keyJsonReader = jsonReader.newJSONReader(new StringReader(keyString))
+        val keyJsonProtocol = new JSONProtocol(keyJsonReader, jsonWriter)
         keyCodec.decode(keyJsonProtocol)
     }
 
@@ -220,9 +202,9 @@ class JSONProtocol(
    * Returns `true` if it reaches the map end.
    */
   def readMapEnd() =
-    jsonParser.peepNextToken() match {
-      case JsonToken.END_OBJECT ⇒
-        jsonParser.nextToken()
+    jsonReader.peepNextToken() match {
+      case JSONToken.OBJECT_END ⇒
+        jsonReader.nextToken()
         true
 
       case _ ⇒
@@ -231,47 +213,35 @@ class JSONProtocol(
 
   // STRUCT
   def writeFieldBegin[T](fieldCodec: Codec[T], id: Short, name: String) {
-    jsonGen.writeFieldName(name)
-//    jsonGen.writeRaw(':')
+    jsonWriter.writeFieldName(name)
   }
 
   def writeFieldEnd() {}
 
-  def writeStructBegin[T](name: String) = jsonGen.writeStartObject()
+  def writeStructBegin[T](name: String) = jsonWriter.writeObjectBegin()
 
-  def writeStructEnd() = jsonGen.writeEndObject()
+  def writeStructEnd() = jsonWriter.writeObjectEnd()
 
-  def readFieldBegin() = {
-//    println("+ readFieldBegin()")
-    jsonParser.nextString
-  }
+  def readFieldBegin() = jsonReader.readString()
 
-  def readField[T](fieldCodec: Codec[T], name: String) = {
-//    println("+ readField(%s, %s)".format(name, fieldCodec))
-    val value = fieldCodec.decode(this)
-//    println("+   readField(%s) => %s".format(name, value))
-    value
-  }
+  def readField[T](fieldCodec: Codec[T], name: String) =
+    fieldCodec.decode(this)
 
-  def readFieldEnd() {
-//    println("+ readFieldEnd()")
-  }
+  def readFieldEnd() {}
 
   def readStructBegin() {
-//    println("+ readStructBegin()")
-    val token = jsonParser.nextToken()
+    val token = jsonReader.nextToken()
 
-    val tokenText = jsonParser.getText
-    val location = jsonParser.getCurrentLocation
-    requireToken(JsonToken.START_OBJECT, token, tokenText, location)
+    val text = jsonReader.currentText()
+    val location = jsonReader.currentLocation()
+    requireToken(JSONToken.OBJECT_START, token, text, location)
   }
 
   def readStructEnd() {
-//    println("+ readStructEnd()")
-    val token = jsonParser.nextToken()
+    val token = jsonReader.nextToken()
 
-    val tokenText = jsonParser.getText
-    val location = jsonParser.getCurrentLocation
-    requireToken(JsonToken.END_OBJECT, token, tokenText, location)
+    val tokenText = jsonReader.currentText()
+    val location = jsonReader.currentLocation()
+    requireToken(JSONToken.OBJECT_END, token, tokenText, location)
   }
 }
