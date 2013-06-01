@@ -28,3 +28,9 @@ case class BeanIMap(map: scala.collection.immutable.Map[TTypeEnum, IntRef])
 case class BeanMMap(map: scala.collection.mutable.Map[TTypeEnum, IntRef])
 
 case class BeanOptionCMap(optMap: Option[scala.collection.Map[TTypeEnum, IntRef]])
+
+case class BeanMapOfMap(outerMap: scala.collection.Map[String, scala.collection.Map[String, BeanCMap]])
+
+case class BeanMapOfCompositeKey(map: scala.collection.Map[BeanCMap, String])
+
+case class BeanMapOfCompositeKeyValue(map: scala.collection.Map[BeanCMap, BeanCMap])

@@ -98,4 +98,34 @@ class ScalaMapTest extends BaseFixture {
       BeanMMap(scala.collection.mutable.Map())
     )
   }
+
+  @Test def testBeanMapOfMap() {
+    good(
+      BeanMapOfMap(
+        scala.collection.Map(
+          "level-1" → scala.collection.Map(
+            "level-2" → BeanCMap(scala.collection.Map(TTypeEnum.STRUCT → TTypeEnum.STRUCT.ordinal()))
+          )
+        )
+      )
+    )
+  }
+
+  @Test def testBeanMapOfCompositeKey() {
+    good(
+      BeanMapOfCompositeKey(
+        scala.collection.Map(
+          BeanCMap(scala.collection.Map(TTypeEnum.STRUCT → TTypeEnum.STRUCT.ordinal())) →
+            ("__" + TTypeEnum.STRUCT + "__")
+        )
+      )
+    )
+  }
+
+  @Test def testBeanMapOfCompositeKeyValue() {
+    val beanCMap = BeanCMap(scala.collection.Map(TTypeEnum.STRUCT → TTypeEnum.STRUCT.ordinal()))
+    good(
+      BeanMapOfCompositeKeyValue(scala.collection.Map(beanCMap → beanCMap))
+    )
+  }
 }
