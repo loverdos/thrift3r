@@ -18,7 +18,7 @@ package com.ckkloverdos.thrift3r
 package codec
 package primitive
 
-import com.ckkloverdos.thrift3r.TTypeEnum
+import com.ckkloverdos.thrift3r.BinReprType
 import com.ckkloverdos.thrift3r.protocol.Protocol
 
 /**
@@ -29,10 +29,10 @@ import com.ckkloverdos.thrift3r.protocol.Protocol
 case object IntCodec extends Codec[Int] with CodecToString {
 
   /**
-   * The supported [[com.ckkloverdos.thrift3r.TTypeEnum]],
-   * which is [[com.ckkloverdos.thrift3r.TTypeEnum#INT32]].
+   * The supported [[com.ckkloverdos.thrift3r.BinReprType]],
+   * which is [[com.ckkloverdos.thrift3r.BinReprType#INT32]].
    */
-  final def tTypeEnum = TTypeEnum.INT32
+  final def binReprType = BinReprType.INT32
 
   final def typeToken = typeTokenOfClass(IntClass)
 

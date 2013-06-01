@@ -47,7 +47,7 @@ import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 case class Thrift3r(
-  userCodecs: Map[JType, Codec[_]] = Map(),
+  userCodecs: Map[Class[_], Codec[_]] = Map(),
   userCollectionDescriptors: Map[JClass, CollectionDescriptor] = Map(),
   userCollectionOrderings: Map[JClass, CollectionOrdering[_, _]] = Map(),
   paranamer: Paranamer = new AdaptiveParanamer(
@@ -92,12 +92,12 @@ case class Thrift3r(
   protected def codecOfSeq(
     typeToken: TypeToken[_],
     elementCodec: Codec[_]
-  ): Codec[_] = codecOfSeqSet(TTypeEnum.LIST, typeToken, elementCodec)
+  ): Codec[_] = codecOfSeqSet(BinReprType.LIST, typeToken, elementCodec)
 
   protected def codecOfSet(
     typeToken: TypeToken[_],
     elementCodec: Codec[_]
-  ): Codec[_] = codecOfSeqSet(TTypeEnum.SET, typeToken, elementCodec)
+  ): Codec[_] = codecOfSeqSet(BinReprType.SET, typeToken, elementCodec)
 
   protected def codecOfMap(
     typeToken: TypeToken[_],
@@ -140,7 +140,7 @@ case class Thrift3r(
   }
 
   protected def codecOfSeqSet(
-    tTypeEnum: TTypeEnum,
+    tTypeEnum: BinReprType,
     typeToken: TypeToken[_],
     elementCodec: Codec[_]
   ): Codec[_] = {

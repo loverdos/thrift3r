@@ -18,7 +18,7 @@ package com.ckkloverdos.thrift3r
 package codec
 package primitiveref
 
-import com.ckkloverdos.thrift3r.TTypeEnum
+import com.ckkloverdos.thrift3r.BinReprType
 import com.ckkloverdos.thrift3r.protocol.Protocol
 
 /**
@@ -28,10 +28,10 @@ import com.ckkloverdos.thrift3r.protocol.Protocol
 case object DoubleRefCodec extends Codec[java.lang.Double] with CodecToString {
 
   /**
-   * The supported [[com.ckkloverdos.thrift3r.TTypeEnum]],
-   * which is [[com.ckkloverdos.thrift3r.TTypeEnum#FLOAT64]].
+   * The supported [[com.ckkloverdos.thrift3r.BinReprType]],
+   * which is [[com.ckkloverdos.thrift3r.BinReprType#FLOAT64]].
    */
-  final def tTypeEnum = TTypeEnum.FLOAT64
+  final def binReprType = BinReprType.FLOAT64
 
   final def typeToken = typeTokenOfClass(DoubleRefClass)
 

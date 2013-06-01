@@ -25,7 +25,7 @@ trait CodecToString { this: Codec[_] ⇒
     if(this.isInstanceOf[Product]) this.asInstanceOf[Product].productPrefix
     else this.getClass.getSimpleName
 
-  protected final lazy val stdToStringElements = List(tTypeEnum, typeToken)
+  protected final lazy val stdToStringElements = List(binReprType, typeToken)
   protected def extraToStringElements: List[Any] = Nil
   protected final lazy val toStringElements = stdToStringElements ++ extraToStringElements
 

@@ -45,9 +45,9 @@ case class StructCodec[T](
   final val arity: Short = descriptor.arity
 
   /**
-   * The supported [[com.ckkloverdos.thrift3r.TTypeEnum]].
+   * The supported [[com.ckkloverdos.thrift3r.BinReprType]].
    */
-  final def tTypeEnum = TTypeEnum.STRUCT
+  final def binReprType = BinReprType.STRUCT
 
   final def typeToken = descriptor.typeToken.asInstanceOf[TypeToken[T]]
 

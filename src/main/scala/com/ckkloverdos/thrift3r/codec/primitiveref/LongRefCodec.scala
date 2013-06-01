@@ -18,7 +18,7 @@ package com.ckkloverdos.thrift3r
 package codec
 package primitiveref
 
-import com.ckkloverdos.thrift3r.TTypeEnum
+import com.ckkloverdos.thrift3r.BinReprType
 import com.ckkloverdos.thrift3r.protocol.Protocol
 
 /**
@@ -26,7 +26,7 @@ import com.ckkloverdos.thrift3r.protocol.Protocol
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 object LongRefCodec extends Codec[java.lang.Long] with CodecToString {
-  final def tTypeEnum = TTypeEnum.INT64
+  final def binReprType = BinReprType.INT64
 
   final def typeToken = typeTokenOfClass(LongRefClass)
 

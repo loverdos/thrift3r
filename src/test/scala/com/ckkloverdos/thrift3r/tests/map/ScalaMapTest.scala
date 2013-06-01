@@ -16,7 +16,7 @@
 
 package com.ckkloverdos.thrift3r.tests.map
 
-import com.ckkloverdos.thrift3r.TTypeEnum
+import com.ckkloverdos.thrift3r.BinReprType
 import com.ckkloverdos.thrift3r.tests.BaseFixture
 import org.junit.Test
 
@@ -29,7 +29,7 @@ class ScalaMapTest extends BaseFixture {
     good(
       BeanCMap(
         scala.collection.Map(
-          TTypeEnum.BOOL → TTypeEnum.BOOL.ordinal()
+          BinReprType.BOOL → BinReprType.BOOL.ordinal()
         )
       )
     )
@@ -45,7 +45,7 @@ class ScalaMapTest extends BaseFixture {
   @Test def testOptionCMapSome() {
     good(
       BeanOptionCMap(
-        Some(scala.collection.Map(TTypeEnum.BOOL → TTypeEnum.BOOL.ordinal()))
+        Some(scala.collection.Map(BinReprType.BOOL → BinReprType.BOOL.ordinal()))
       )
     )
   }
@@ -69,7 +69,7 @@ class ScalaMapTest extends BaseFixture {
     good(
       BeanIMap(
         scala.collection.immutable.Map(
-          TTypeEnum.MAP → TTypeEnum.MAP.ordinal()
+          BinReprType.MAP → BinReprType.MAP.ordinal()
         )
       )
     )
@@ -86,7 +86,7 @@ class ScalaMapTest extends BaseFixture {
     good(
       BeanMMap(
         scala.collection.mutable.Map(
-          TTypeEnum.STRUCT → TTypeEnum.STRUCT.ordinal()
+          BinReprType.STRUCT → BinReprType.STRUCT.ordinal()
         )
       )
     )
@@ -104,7 +104,7 @@ class ScalaMapTest extends BaseFixture {
       BeanMapOfMap(
         scala.collection.Map(
           "level-1" → scala.collection.Map(
-            "level-2" → BeanCMap(scala.collection.Map(TTypeEnum.STRUCT → TTypeEnum.STRUCT.ordinal()))
+            "level-2" → BeanCMap(scala.collection.Map(BinReprType.STRUCT → BinReprType.STRUCT.ordinal()))
           )
         )
       )
@@ -115,15 +115,15 @@ class ScalaMapTest extends BaseFixture {
     good(
       BeanMapOfCompositeKey(
         scala.collection.Map(
-          BeanCMap(scala.collection.Map(TTypeEnum.STRUCT → TTypeEnum.STRUCT.ordinal())) →
-            ("__" + TTypeEnum.STRUCT + "__")
+          BeanCMap(scala.collection.Map(BinReprType.STRUCT → BinReprType.STRUCT.ordinal())) →
+            ("__" + BinReprType.STRUCT + "__")
         )
       )
     )
   }
 
   @Test def testBeanMapOfCompositeKeyValue() {
-    val beanCMap = BeanCMap(scala.collection.Map(TTypeEnum.STRUCT → TTypeEnum.STRUCT.ordinal()))
+    val beanCMap = BeanCMap(scala.collection.Map(BinReprType.STRUCT → BinReprType.STRUCT.ordinal()))
     good(
       BeanMapOfCompositeKeyValue(scala.collection.Map(beanCMap → beanCMap))
     )

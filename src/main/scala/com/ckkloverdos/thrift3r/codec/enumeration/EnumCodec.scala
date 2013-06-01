@@ -18,7 +18,7 @@ package com.ckkloverdos.thrift3r
 package codec
 package enumeration
 
-import com.ckkloverdos.thrift3r.TTypeEnum
+import com.ckkloverdos.thrift3r.BinReprType
 import com.ckkloverdos.thrift3r.protocol.Protocol
 import java.util.Locale
 import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
@@ -36,7 +36,7 @@ final case class EnumCodec[E <: Enum[_]](enumClass: Class[E]) extends Codec[E] w
   // NOTE Not ENUM because TCompactProtocol/v0.9 throws:
   // NOTE java.lang.ArrayIndexOutOfBoundsException: 16
   // NOTE at org.apache.thrift.protocol.TCompactProtocol.getCompactType(TCompactProtocol.java:852)
-  def tTypeEnum = TTypeEnum.INT32
+  def binReprType = BinReprType.INT32
 
   def typeToken = typeTokenOfClass(enumClass)
 

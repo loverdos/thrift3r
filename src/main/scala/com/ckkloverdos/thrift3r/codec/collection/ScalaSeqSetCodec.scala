@@ -17,13 +17,13 @@
 package com.ckkloverdos.thrift3r.codec
 package collection
 
-import com.ckkloverdos.thrift3r.TTypeEnum.{LIST, SET}
+import com.ckkloverdos.thrift3r.BinReprType.{LIST, SET}
 import com.ckkloverdos.thrift3r.collection.builder.CollectionBuilderFactory
 import com.ckkloverdos.thrift3r.protocol.Protocol
 import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
 import com.google.common.reflect.TypeToken
 import scala.collection.GenTraversable
-import com.ckkloverdos.thrift3r.TTypeEnum
+import com.ckkloverdos.thrift3r.BinReprType
 
 /**
  * Codec for Scala Seqs and Sets.
@@ -31,7 +31,7 @@ import com.ckkloverdos.thrift3r.TTypeEnum
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 case class ScalaSeqSetCodec[A, M](
-  tTypeEnum: TTypeEnum,
+  binReprType: BinReprType,
   typeToken: TypeToken[GenTraversable[A]],
   elementCodec: Codec[A],
   meta: M,
@@ -39,14 +39,14 @@ case class ScalaSeqSetCodec[A, M](
 ) extends Codec[GenTraversable[A]] with CodecToString with UnsupportedDirectStringTransformations[GenTraversable[A]] {
 
   require(
-    tTypeEnum == LIST || tTypeEnum == SET,
-    "tTypeENum = %s, should have been one of %s, %s".format(tTypeEnum, LIST, SET)
+    binReprType == LIST || binReprType == SET,
+    "tTypeENum = %s, should have been one of %s, %s".format(binReprType, LIST, SET)
   )
 
   override protected def extraToStringElements = List(elementCodec, meta, builderFactory)
 
   def encode(protocol: Protocol, value: GenTraversable[A]) {
-    tTypeEnum match {
+    binReprType match {
       case LIST ⇒
         ProtocolHelpers.writeList(protocol, elementCodec, value)
 
@@ -58,7 +58,7 @@ case class ScalaSeqSetCodec[A, M](
   def decode(protocol: Protocol) = {
     val builder = builderFactory.newBuilder(meta)
 
-    tTypeEnum match {
+    binReprType match {
       case LIST ⇒
         ProtocolHelpers.readList[A](protocol, elementCodec, builder.add(_))
 

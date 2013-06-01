@@ -17,7 +17,7 @@
 package com.ckkloverdos.thrift3r.codec
 package misc
 
-import com.ckkloverdos.thrift3r.TTypeEnum
+import com.ckkloverdos.thrift3r.BinReprType
 import com.ckkloverdos.thrift3r.protocol.{UnsizedSetProtocol, SizedSetProtocol, Protocol}
 import com.google.common.reflect.TypeToken
 import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
@@ -31,7 +31,7 @@ final case class OptionCodec[T](
   elementCodec: Codec[T]
 ) extends Codec[Option[T]] with UnsupportedDirectStringTransformations[Option[T]] {
 
-  def tTypeEnum = TTypeEnum.SET
+  def binReprType = BinReprType.SET
 
   def encode(protocol: Protocol, value: Option[T]) {
     val setProtocol = protocol.getSetProtocol

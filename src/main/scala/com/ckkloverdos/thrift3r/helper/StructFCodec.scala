@@ -14,35 +14,27 @@
  * limitations under the License.
  */
 
-package com.ckkloverdos.thrift3r
-package codec
-package primitiveref
+package com.ckkloverdos.thrift3r.helper
 
 import com.ckkloverdos.thrift3r.BinReprType
+import com.ckkloverdos.thrift3r.codec.{UnsupportedDirectStringTransformations, Codec}
 import com.ckkloverdos.thrift3r.protocol.Protocol
+import com.google.common.reflect.TypeToken
 
 /**
+ * Struct codec given in the form of the codec functions.
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case object ByteRefCodec extends Codec[java.lang.Byte] with CodecToString {
-  final def binReprType = BinReprType.INT8
+final case class StructFCodec[T](
+  typeToken: TypeToken[T],
+  encoder: (Protocol, T) ⇒ Unit,
+  decoder: (Protocol) ⇒ T
+) extends Codec[T] with UnsupportedDirectStringTransformations[T] {
 
-  final def typeToken = typeTokenOfClass(ByteRefClass)
+  def binReprType = BinReprType.STRUCT
 
-  @inline final def getValue(value: java.lang.Byte) =
-    value match {
-      case null ⇒ 0.toByte
-      case _    ⇒ value.byteValue()
-    }
+  def encode(protocol: Protocol, value: T) = encoder(protocol, value)
 
-  final def encode(protocol: Protocol, value: java.lang.Byte) {
-    protocol.writeInt8(getValue(value))
-  }
-
-  final def decode(protocol: Protocol) = java.lang.Byte.valueOf(protocol.readInt8())
-
-  final def toDirectString(value: java.lang.Byte) = String.valueOf(getValue(value))
-
-  final def fromDirectString(value: String) = java.lang.Byte.valueOf(value)
+  def decode(protocol: Protocol) = decoder(protocol)
 }

@@ -17,7 +17,7 @@
 package com.ckkloverdos.thrift3r.codec
 package numericref
 
-import com.ckkloverdos.thrift3r.TTypeEnum
+import com.ckkloverdos.thrift3r.BinReprType
 import com.ckkloverdos.thrift3r.protocol.Protocol
 import com.google.common.reflect.TypeToken
 import java.math.BigInteger
@@ -27,7 +27,7 @@ import java.math.BigInteger
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 final case class JavaBigIntegerCodec(radix: Int) extends Codec[BigInteger] with CodecToString {
-  def tTypeEnum = TTypeEnum.STRING
+  def binReprType = BinReprType.STRING
 
   def typeToken = new TypeToken[BigInteger]{}
 

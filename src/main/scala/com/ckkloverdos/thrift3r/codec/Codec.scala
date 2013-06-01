@@ -17,23 +17,21 @@
 package com.ckkloverdos.thrift3r
 package codec
 
-import com.ckkloverdos.thrift3r.TTypeEnum
+import com.ckkloverdos.thrift3r.BinReprType
 import com.ckkloverdos.thrift3r.protocol.Protocol
 import com.google.common.reflect.TypeToken
 
 /**
  * A thrift codec for a particular type `T`.
- * A codec supports only one [[com.ckkloverdos.thrift3r.TTypeEnum]].
+ * A codec supports only one [[com.ckkloverdos.thrift3r.BinReprType]].
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 trait Codec[T] {
   /**
-   * The supported [[com.ckkloverdos.thrift3r.TTypeEnum]].
+   * The supported [[com.ckkloverdos.thrift3r.BinReprType]].
    */
-  def tTypeEnum: TTypeEnum
-
-  final def tType = tTypeEnum.ttype
+  def binReprType: BinReprType
 
   def typeToken: TypeToken[T]
 
@@ -45,7 +43,7 @@ trait Codec[T] {
 
   def decode(protocol: Protocol): T
 
-  final def hasDirectStringRepresentation = tTypeEnum.hasDirectStringRepresentation
+  final def hasDirectStringRepresentation = binReprType.hasDirectStringRepresentation
 
   def toDirectString(value: T): String
 

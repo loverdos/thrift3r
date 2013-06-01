@@ -17,7 +17,7 @@
 package com.ckkloverdos.thrift3r.codec
 package collection
 
-import com.ckkloverdos.thrift3r.TTypeEnum
+import com.ckkloverdos.thrift3r.BinReprType
 import com.ckkloverdos.thrift3r.collection.builder.CollectionBuilderFactory
 import com.ckkloverdos.thrift3r.protocol.Protocol
 import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
@@ -37,7 +37,7 @@ case class ScalaMapCodec[A, B, M](
   builderFactory: CollectionBuilderFactory[(A, B), GenMap[A, B], M]
 ) extends Codec[GenMap[A, B]] with UnsupportedDirectStringTransformations[GenMap[A, B]] {
 
-  def tTypeEnum = TTypeEnum.MAP
+  def binReprType = BinReprType.MAP
 
   def encode(protocol: Protocol, map: GenMap[A, B]) {
     ProtocolHelpers.writeMap(protocol, keyCodec, valueCodec, map)

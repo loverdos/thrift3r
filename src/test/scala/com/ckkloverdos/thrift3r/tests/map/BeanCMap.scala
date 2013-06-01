@@ -21,13 +21,13 @@ package tests.map
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case class BeanCMap(map: scala.collection.Map[TTypeEnum, IntRef])
+case class BeanCMap(map: scala.collection.Map[BinReprType, IntRef])
 
-case class BeanIMap(map: scala.collection.immutable.Map[TTypeEnum, IntRef])
+case class BeanIMap(map: scala.collection.immutable.Map[BinReprType, IntRef])
 
-case class BeanMMap(map: scala.collection.mutable.Map[TTypeEnum, IntRef])
+case class BeanMMap(map: scala.collection.mutable.Map[BinReprType, IntRef])
 
-case class BeanOptionCMap(optMap: Option[scala.collection.Map[TTypeEnum, IntRef]])
+case class BeanOptionCMap(optMap: Option[scala.collection.Map[BinReprType, IntRef]])
 
 case class BeanMapOfMap(outerMap: scala.collection.Map[String, scala.collection.Map[String, BeanCMap]])
 

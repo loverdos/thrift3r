@@ -72,7 +72,7 @@ class TProtocolAdapter(tprotocol: TProtocol)
 
   // LIST
   def writeListBegin[T](elementCodec: Codec[T], size: Int) =
-    tprotocol.writeListBegin(new TList(elementCodec.tType, size))
+    tprotocol.writeListBegin(new TList(TTypes.toTType(elementCodec.binReprType), size))
 
   def writeListElement[T](element: T, elementCodec: Codec[T]) =
     elementCodec.encode(this, element)
@@ -88,7 +88,7 @@ class TProtocolAdapter(tprotocol: TProtocol)
 
   // SET
   def writeSetBegin[T](elementCodec: Codec[T], size: Int) =
-    tprotocol.writeSetBegin(new TSet(elementCodec.tType, size))
+    tprotocol.writeSetBegin(new TSet(TTypes.toTType(elementCodec.binReprType), size))
 
   def writeSetElement[T](element: T, elementCodec: Codec[T]) =
     elementCodec.encode(this, element)
@@ -104,7 +104,13 @@ class TProtocolAdapter(tprotocol: TProtocol)
 
   // MAP
   def writeMapBegin[K, V](keyCodec: Codec[K], valueCodec: Codec[V], size: Int) =
-    tprotocol.writeMapBegin(new TMap(keyCodec.tType, valueCodec.tType, size))
+    tprotocol.writeMapBegin(
+      new TMap(
+        TTypes.toTType(keyCodec.binReprType),
+        TTypes.toTType(valueCodec.binReprType),
+        size
+      )
+    )
 
   def writeMapElement[K, V](key: K, keyCodec: Codec[K], value: V, valueCodec: Codec[V]) {
     keyCodec.encode(this, key)
@@ -125,7 +131,7 @@ class TProtocolAdapter(tprotocol: TProtocol)
 
   // STRUCT
   def writeFieldBegin[T](fieldCodec: Codec[T], id: Short, name: String) =
-    tprotocol.writeFieldBegin(new TField(name, fieldCodec.tType, id))
+    tprotocol.writeFieldBegin(new TField(name, TTypes.toTType(fieldCodec.binReprType), id))
 
   def writeFieldEnd() = tprotocol.writeFieldEnd()
 

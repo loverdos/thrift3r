@@ -17,7 +17,7 @@
 package com.ckkloverdos.thrift3r.codec
 package collection
 
-import com.ckkloverdos.thrift3r.TTypeEnum.SET
+import com.ckkloverdos.thrift3r.BinReprType.SET
 import com.ckkloverdos.thrift3r.collection.builder.CollectionBuilderFactory
 import com.ckkloverdos.thrift3r.protocol.Protocol
 import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
@@ -36,7 +36,7 @@ case class ScalaSetCodec[A, M](
   builderFactory: CollectionBuilderFactory[A, GenTraversable[A], M]
 ) extends Codec[GenTraversable[A]] with CodecToString with UnsupportedDirectStringTransformations[GenTraversable[A]] {
 
-  def tTypeEnum = SET
+  def binReprType = SET
 
   override protected def extraToStringElements = List(elementCodec, meta, builderFactory)
 

@@ -17,7 +17,7 @@
 package com.ckkloverdos.thrift3r.codec
 package stdref
 
-import com.ckkloverdos.thrift3r.TTypeEnum
+import com.ckkloverdos.thrift3r.BinReprType
 import com.ckkloverdos.thrift3r.protocol.Protocol
 import com.google.common.reflect.TypeToken
 
@@ -28,10 +28,10 @@ import com.google.common.reflect.TypeToken
 case object StringCodec extends Codec[String] with CodecToString {
 
   /**
-   * The supported [[com.ckkloverdos.thrift3r.TTypeEnum]],
-   * which is [[com.ckkloverdos.thrift3r.TTypeEnum#STRING]].
+   * The supported [[com.ckkloverdos.thrift3r.BinReprType]],
+   * which is [[com.ckkloverdos.thrift3r.BinReprType#STRING]].
    */
-  final def tTypeEnum = TTypeEnum.STRING
+  final def binReprType = BinReprType.STRING
 
   final def typeToken = new TypeToken[String]{}
 

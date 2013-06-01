@@ -16,36 +16,31 @@
 
 package com.ckkloverdos.thrift3r;
 
-import org.apache.thrift.protocol.TType;
-
 /**
- * These are the types supported at the binary codec level.
- *
- * TODO: We do not need to be thrift-specific here. We already are more generic.
- *
- * @see org.apache.thrift.protocol.TType
+ * Binary representation types: these are the types supported at the binary codec level.
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-public enum TTypeEnum {
-    VOID(TType.VOID),
-    BOOL(TType.BOOL),
-    INT8(TType.BYTE),
-    INT16(TType.I16),
-    INT32(TType.I32),
-    INT64(TType.I64),
-    FLOAT64(TType.DOUBLE),
-    STRING(TType.STRING),
-    SET(TType.SET),
-    LIST(TType.LIST),
-    MAP(TType.MAP),
-    ENUM(TType.ENUM),
-    STRUCT(TType.STRUCT);
+public enum BinReprType {
+    VOID   ((byte)  0),
+    BOOL   ((byte)  1),
+    INT8   ((byte)  2),
+    INT16  ((byte)  3),
+    INT32  ((byte)  4),
+    INT64  ((byte)  5),
+//  FLOAT32((byte)  6),
+    FLOAT64((byte)  7),
+    STRING ((byte)  10),
+    SET    ((byte)  21),
+    LIST   ((byte)  22),
+    MAP    ((byte)  23),
+    ENUM   ((byte)  30),
+    STRUCT ((byte)  40);
 
-    public final byte ttype;
+    public final byte brType;
 
-    private TTypeEnum(byte ttype) {
-        this.ttype = ttype;
+    private BinReprType(byte brType) {
+        this.brType = brType;
     }
 
     public boolean hasDirectStringRepresentation() {

@@ -16,7 +16,7 @@
 
 package com.ckkloverdos.thrift3r.protocol.thrift
 
-import com.ckkloverdos.thrift3r.TTypeEnum
+import com.ckkloverdos.thrift3r.BinReprType
 import org.apache.thrift.protocol.TProtocol
 
 /**
@@ -27,7 +27,7 @@ import org.apache.thrift.protocol.TProtocol
 trait TProtocol2 extends TProtocol {
   def writeStructBegin(name: String)
 
-  def writeListBegin(elementType: TTypeEnum, size: Int)
+  def writeListBegin(elementType: BinReprType, size: Int)
 
-  def writeSetBegin(elementType: TTypeEnum, size: Int)
+  def writeSetBegin(elementType: BinReprType, size: Int)
 }
