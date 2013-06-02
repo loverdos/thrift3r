@@ -52,6 +52,8 @@ final class JSONProtocol(
 
   def writeInt64(value: Long) = jsonWriter.writeInt64(value)
 
+  def writeFloat32(value: Float) = jsonWriter.writeFloat32(value)
+
   def writeFloat64(value: Double) = jsonWriter.writeFloat64(value)
 
   def writeString(value: String) = jsonWriter.writeString(value)
@@ -67,6 +69,8 @@ final class JSONProtocol(
   def readInt32() = jsonReader.readInt32()
 
   def readInt64() = jsonReader.readInt64()
+
+  def readFloat32() = jsonReader.readFloat32()
 
   def readFloat64() = jsonReader.readFloat64()
 

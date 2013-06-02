@@ -46,6 +46,8 @@ trait JSONReader {
 
   def readInt64(): Long
 
+  def readFloat32(): Float
+
   def readFloat64(): Double
 
   def newJSONReader(reader: Reader): JSONReader

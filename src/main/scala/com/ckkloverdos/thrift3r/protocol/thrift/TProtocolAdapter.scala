@@ -18,8 +18,9 @@ package com.ckkloverdos.thrift3r.protocol.thrift
 
 import com.ckkloverdos.thrift3r.codec.Codec
 import com.ckkloverdos.thrift3r.protocol.{OptionProtocol, IntEnumProtocol, StrictFieldsStructProtocol, SizedMapProtocol, SizedSetProtocol, SizedListProtocol, Protocol}
-import org.apache.thrift.protocol.{TMap, TSet, TStruct, TField, TList, TProtocol}
+import org.apache.thrift.protocol.{TType, TMap, TSet, TStruct, TField, TList, TProtocol}
 import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
+import com.ckkloverdos.thrift3r.BinReprType
 
 /**
  *
@@ -50,6 +51,8 @@ class TProtocolAdapter(tprotocol: TProtocol)
 
   def writeInt64(value: Long) = tprotocol.writeI64(value)
 
+  def writeFloat32(value: Float) = tprotocol.writeDouble(value.toDouble)
+
   def writeFloat64(value: Double) = tprotocol.writeDouble(value)
 
   def writeString(value: String) = tprotocol.writeString(value)
@@ -65,6 +68,8 @@ class TProtocolAdapter(tprotocol: TProtocol)
   def readInt16() = tprotocol.readI16()
 
   def readInt32() = tprotocol.readI32()
+
+  def readFloat32() = tprotocol.readDouble().toFloat
 
   def readInt64() = tprotocol.readI64()
 

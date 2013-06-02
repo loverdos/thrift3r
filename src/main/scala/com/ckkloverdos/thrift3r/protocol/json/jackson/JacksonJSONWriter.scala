@@ -44,6 +44,8 @@ final class JacksonJSONWriter(
 
   def writeInt64(value: Int64) = gen.writeNumber(value)
 
+  def writeFloat32(value: Float32) = gen.writeNumber(value)
+
   def writeFloat64(value: Float64) = gen.writeNumber(value)
 
   def writeArrayBegin() = gen.writeStartArray()

@@ -19,30 +19,38 @@ package com.ckkloverdos.thrift3r.protocol.thrift;
 import com.ckkloverdos.thrift3r.BinReprType;
 import org.apache.thrift.protocol.TType;
 
+import java.util.EnumMap;
+
 /**
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 public final class TTypes {
     private TTypes() {}
 
+    public static final EnumMap<BinReprType, Byte> BinReprTypeMap = new EnumMap<BinReprType, Byte>(BinReprType.class);
+    static {
+        BinReprTypeMap.put(BinReprType.VOID, TType.VOID);
+        BinReprTypeMap.put(BinReprType.BOOL, TType.BOOL);
+        BinReprTypeMap.put(BinReprType.INT8, TType.BYTE);
+        BinReprTypeMap.put(BinReprType.INT16, TType.I16);
+        BinReprTypeMap.put(BinReprType.INT32, TType.I32);
+        BinReprTypeMap.put(BinReprType.INT64, TType.I64);
+        BinReprTypeMap.put(BinReprType.FLOAT32, TType.DOUBLE);
+        BinReprTypeMap.put(BinReprType.FLOAT64, TType.DOUBLE);
+        BinReprTypeMap.put(BinReprType.STRING, TType.STRING);
+        BinReprTypeMap.put(BinReprType.SET, TType.SET);
+        BinReprTypeMap.put(BinReprType.LIST, TType.LIST);
+        BinReprTypeMap.put(BinReprType.MAP, TType.MAP);
+        BinReprTypeMap.put(BinReprType.OPTION, TType.SET);
+        BinReprTypeMap.put(BinReprType.ENUM, TType.ENUM);
+        BinReprTypeMap.put(BinReprType.STRUCT, TType.STRUCT);
+    }
+
     public static byte toTType(BinReprType brType) {
-        switch(brType) {
-            case VOID: return TType.VOID;
-            case BOOL: return TType.BOOL;
-            case INT8: return TType.BYTE;
-            case INT16: return TType.I16;
-            case INT32: return TType.I32;
-            case INT64: return TType.I64;
-            case FLOAT64: return TType.DOUBLE;
-            case STRING: return TType.STRING;
-            case SET: return TType.SET;
-            case LIST: return TType.LIST;
-            case MAP: return TType.MAP;
-            case OPTION: return TType.SET;
-            case ENUM: return TType.ENUM;
-            case STRUCT: return TType.STRUCT;
-            default:
-                throw new RuntimeException("Unknown " + brType);
+        final Byte value = BinReprTypeMap.get(brType);
+        if(value == null) {
+            throw new RuntimeException("Unknown " + brType);
         }
+        return value;
     }
 }

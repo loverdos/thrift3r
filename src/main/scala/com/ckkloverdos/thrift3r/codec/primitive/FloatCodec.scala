@@ -26,13 +26,13 @@ import com.ckkloverdos.thrift3r.protocol.Protocol
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 case object FloatCodec extends Codec[Float] with CodecToString {
-  final def binReprType = BinReprType.FLOAT64
+  final def binReprType = BinReprType.FLOAT32
 
   final def typeToken = typeTokenOfClass(FloatClass)
 
-  final def encode(protocol: Protocol, value: Float) { protocol.writeFloat64(value.toDouble) }
+  final def encode(protocol: Protocol, value: Float) { protocol.writeFloat32(value) }
 
-  final def decode(protocol: Protocol) = protocol.readFloat64().toFloat
+  final def decode(protocol: Protocol) = protocol.readFloat32()
 
   final def toDirectString(value: Float) = String.valueOf(value)
 

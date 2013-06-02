@@ -28,13 +28,13 @@ public enum BinReprType {
     INT16  ((byte)  3),
     INT32  ((byte)  4),
     INT64  ((byte)  5),
-//  FLOAT32((byte)  6),
+    FLOAT32((byte)  6),
     FLOAT64((byte)  7),
     STRING ((byte)  10),
-    SET    ((byte)  21),
-    LIST   ((byte)  22),
-    MAP    ((byte)  23),
-    OPTION ((byte)  24),
+    SET    ((byte)  20),
+    LIST   ((byte)  21),
+    MAP    ((byte)  22),
+    OPTION ((byte)  23),
     ENUM   ((byte)  30), // Simple, Java-like enums
     STRUCT ((byte)  40);
 
@@ -51,6 +51,7 @@ public enum BinReprType {
             case INT16:
             case INT32:
             case INT64:
+            case FLOAT32:
             case FLOAT64:
             case STRING:
             case ENUM:

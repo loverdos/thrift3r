@@ -38,6 +38,8 @@ trait JSONWriter {
 
   def writeInt64(value: Int64)
 
+  def writeFloat32(value: Float32)
+
   def writeFloat64(value: Float64)
 
   def writeArrayBegin()

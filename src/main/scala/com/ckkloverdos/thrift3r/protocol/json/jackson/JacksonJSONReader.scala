@@ -136,6 +136,11 @@ final class JacksonJSONReader(
     _currentText.toLong
   }
 
+  def readFloat32() = {
+    nextToken()
+    _currentText.toFloat
+  }
+
   def readFloat64() = {
     nextToken()
     _currentText.toDouble

@@ -46,6 +46,9 @@ trait Protocol {
   def writeInt64(value: Long)
   def readInt64(): Long
 
+  def writeFloat32(value: Float)
+  def readFloat32(): Float
+
   def writeFloat64(value: Double)
   def readFloat64(): Double
 
