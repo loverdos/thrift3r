@@ -31,45 +31,11 @@ final case class OptionCodec[T](
   elementCodec: Codec[T]
 ) extends Codec[Option[T]] with UnsupportedDirectStringTransformations[Option[T]] {
 
-  def binReprType = BinReprType.SET
+  def binReprType = BinReprType.OPTION
 
-  def encode(protocol: Protocol, value: Option[T]) {
-    val setProtocol = protocol.getSetProtocol
-    value match {
-      case null | None ⇒
-        setProtocol.writeEmptySet(elementCodec)
+  def encode(protocol: Protocol, value: Option[T]) =
+    protocol.getOptionProtocol.writeOption(elementCodec, value)
 
-      case Some(element) ⇒
-        setProtocol.writeSetBegin(elementCodec, 1)
-        setProtocol.writeSetElement(element, elementCodec)
-        setProtocol.writeSetEnd()
-    }
-  }
-
-  def decode(protocol: Protocol) = {
-    protocol.getSetProtocol match {
-      case setProtocol: SizedSetProtocol ⇒
-        val size = setProtocol.readSetBegin()
-        val isEmpty = size == 0
-        require(isEmpty || size == 1)
-        val option = if(isEmpty) None else {
-          val element = setProtocol.readSetElement(elementCodec)
-          Some(element)
-        }
-        setProtocol.readSetEnd()
-        option
-
-      case setProtocol: UnsizedSetProtocol ⇒
-        setProtocol.readSetBegin()
-        if(setProtocol.readSetEnd()) {
-          None
-        }
-        else {
-          val element = setProtocol.readSetElement(elementCodec)
-          val isEnd = setProtocol.readSetEnd()
-//          require(isEnd)
-          Some(element)
-        }
-    }
-  }
+  def decode(protocol: Protocol) =
+    protocol.getOptionProtocol.readOption(elementCodec)
 }

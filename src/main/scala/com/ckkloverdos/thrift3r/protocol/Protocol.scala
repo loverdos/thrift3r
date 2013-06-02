@@ -21,7 +21,14 @@ package com.ckkloverdos.thrift3r.protocol
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-trait Protocol { this: EnumProtocol with ListProtocol with SetProtocol with StructProtocol with MapProtocol ⇒
+trait Protocol {
+  this: EnumProtocol
+  with  ListProtocol
+  with  SetProtocol
+  with  StructProtocol
+  with  MapProtocol
+  with  OptionProtocol ⇒
+
   def flush()
 
   def writeBool(value: Boolean)
@@ -54,6 +61,8 @@ trait Protocol { this: EnumProtocol with ListProtocol with SetProtocol with Stru
   def getSetProtocol: SetProtocol = this
 
   def getMapProtocol: MapProtocol = this
+
+  def getOptionProtocol: OptionProtocol = this
 
   def getStructProtocol: StructProtocol = this
 }

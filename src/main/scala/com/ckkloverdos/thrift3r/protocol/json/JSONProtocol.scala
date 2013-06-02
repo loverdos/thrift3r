@@ -17,8 +17,9 @@
 package com.ckkloverdos.thrift3r.protocol.json
 
 import com.ckkloverdos.thrift3r.codec.Codec
-import com.ckkloverdos.thrift3r.protocol.{StringEnumProtocol, FieldsByNameStructProtocol, UnsizedMapProtocol, UnsizedSetProtocol, UnsizedListProtocol, Protocol}
+import com.ckkloverdos.thrift3r.protocol.{OptionProtocol, StringEnumProtocol, FieldsByNameStructProtocol, UnsizedMapProtocol, UnsizedSetProtocol, UnsizedListProtocol, Protocol}
 import java.io.{StringReader, StringWriter}
+import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
 
 /**
  *
@@ -32,6 +33,7 @@ final class JSONProtocol(
   with    UnsizedListProtocol // don't know the list size before reading it all
   with    UnsizedSetProtocol
   with    UnsizedMapProtocol
+  with    OptionProtocol
   with    FieldsByNameStructProtocol {
 
   def flush() {
@@ -210,6 +212,13 @@ final class JSONProtocol(
       case _ ⇒
         false
     }
+
+  // OPTION
+  def writeOption[T](elementCodec: Codec[T], option: Option[T]) =
+    ProtocolHelpers.writeSetBasedOption(this, elementCodec, option)
+
+  def readOption[T](elementCodec: Codec[T]) =
+    ProtocolHelpers.readSetBasedOption(this, elementCodec)
 
   // STRUCT
   def writeFieldBegin[T](fieldCodec: Codec[T], id: Short, name: String) {

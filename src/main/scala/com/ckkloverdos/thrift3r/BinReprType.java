@@ -34,7 +34,8 @@ public enum BinReprType {
     SET    ((byte)  21),
     LIST   ((byte)  22),
     MAP    ((byte)  23),
-    ENUM   ((byte)  30),
+    OPTION ((byte)  24),
+    ENUM   ((byte)  30), // Simple, Java-like enums
     STRUCT ((byte)  40);
 
     public final byte brType;

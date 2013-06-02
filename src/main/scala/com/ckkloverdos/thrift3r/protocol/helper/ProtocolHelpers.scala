@@ -332,4 +332,57 @@ object ProtocolHelpers {
         codec.fromNameIgnoringCase(name)
     }
   }
+
+  final def writeBoolBasedOption[T](protocol: Protocol, codec: Codec[T], value: Option[T]) {
+    value match {
+      case null | None ⇒
+        protocol.writeBool(false) // not present
+
+      case Some(element) ⇒
+        protocol.writeBool(true) // present
+        codec.encode(protocol, element)
+    }
+  }
+
+  final def readBoolBasedOption[T](protocol: Protocol, codec: Codec[T]): Option[T] = {
+    protocol.readBool() match {
+      case false ⇒ None
+      case true  ⇒ Some(codec.decode(protocol))
+    }
+  }
+
+  final def writeSetBasedOption[T](protocol: Protocol, codec: Codec[T], value: Option[T]) {
+    val setProtocol = protocol.getSetProtocol
+    value match {
+      case null | None ⇒
+        setProtocol.writeEmptySet(codec)
+
+      case Some(element) ⇒
+        setProtocol.writeSetBegin(codec, 1)
+        setProtocol.writeSetElement(element, codec)
+        setProtocol.writeSetEnd()
+    }
+  }
+
+  final def readSetBasedOption[T](protocol: Protocol, codec: Codec[T]): Option[T] = {
+    protocol.getSetProtocol match {
+      case setProtocol: SizedSetProtocol ⇒
+        val size = setProtocol.readSetBegin()
+        require(size == 1)
+        val element = setProtocol.readSetElement(codec)
+        setProtocol.readSetEnd()
+        Some(element)
+
+      case setProtocol: UnsizedSetProtocol ⇒
+        setProtocol.readSetBegin()
+        if(setProtocol.readSetEnd()) {
+          None
+        }
+        else {
+          val element = setProtocol.readSetElement(codec)
+          require(setProtocol.readSetEnd())
+          Some(element)
+        }
+    }
+  }
 }

@@ -17,8 +17,9 @@
 package com.ckkloverdos.thrift3r.protocol.thrift
 
 import com.ckkloverdos.thrift3r.codec.Codec
-import com.ckkloverdos.thrift3r.protocol.{IntEnumProtocol, StrictFieldsStructProtocol, SizedMapProtocol, SizedSetProtocol, SizedListProtocol, Protocol}
+import com.ckkloverdos.thrift3r.protocol.{OptionProtocol, IntEnumProtocol, StrictFieldsStructProtocol, SizedMapProtocol, SizedSetProtocol, SizedListProtocol, Protocol}
 import org.apache.thrift.protocol.{TMap, TSet, TStruct, TField, TList, TProtocol}
+import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
 
 /**
  *
@@ -30,6 +31,7 @@ class TProtocolAdapter(tprotocol: TProtocol)
   with    SizedListProtocol
   with    SizedSetProtocol
   with    SizedMapProtocol
+  with    OptionProtocol
   with    StrictFieldsStructProtocol {
 
   def flush() {
@@ -128,6 +130,13 @@ class TProtocolAdapter(tprotocol: TProtocol)
   }
 
   def readMapEnd() = tprotocol.readMapEnd()
+
+  // OPTION
+  def writeOption[T](elementCodec: Codec[T], option: Option[T]) =
+    ProtocolHelpers.writeBoolBasedOption(this, elementCodec, option)
+
+  def readOption[T](elementCodec: Codec[T]) =
+    ProtocolHelpers.readBoolBasedOption(this, elementCodec)
 
   // STRUCT
   def writeFieldBegin[T](fieldCodec: Codec[T], id: Short, name: String) =

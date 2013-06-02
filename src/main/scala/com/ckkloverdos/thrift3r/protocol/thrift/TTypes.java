@@ -38,6 +38,7 @@ public final class TTypes {
             case SET: return TType.SET;
             case LIST: return TType.LIST;
             case MAP: return TType.MAP;
+            case OPTION: return TType.SET;
             case ENUM: return TType.ENUM;
             case STRUCT: return TType.STRUCT;
             default:
