@@ -17,72 +17,41 @@
 package com.ckkloverdos.thrift3r.tests
 
 import com.ckkloverdos.thrift3r.Thrift3r
-import org.junit.Assert
+import com.ckkloverdos.thrift3r.helper.test.TestHelpers
 
 /**
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 trait BaseFixture {
-  final val DefaultThrifter = new Thrift3r()
+  val DefaultThrifter = new Thrift3r()
+  val helpers = new TestHelpers
 
   protected def goodThrift[A <: AnyRef](obj: A, thrifter: Thrift3r = DefaultThrifter) {
-    val bytes = thrifter.beanToBytes(obj)
-    val bean  = thrifter.bytesToBean(obj.getClass, bytes)
-    require(obj == bean)
+    helpers.goodThrift(obj, thrifter)
   }
 
   protected def goodJSON[A <: AnyRef](obj: A, thrifter: Thrift3r = DefaultThrifter) {
-    println(obj)
-    val json = thrifter.beanToJSON(obj)
-    println(json)
-    val bean  = thrifter.jsonToBean(obj.getClass, json)
-    println(bean)
-    require(obj == bean)
+    helpers.goodJSON(obj, thrifter)
   }
 
   protected def good[A <: AnyRef](obj: A, thrifter: Thrift3r = DefaultThrifter) {
-    goodThrift(obj, thrifter)
-    goodJSON(obj, thrifter)
+    helpers.good(obj, thrifter)
   }
 
   protected def badThrift[A <: AnyRef](obj: A, thrifter: Thrift3r = DefaultThrifter) {
-    try {
-      thrifter.beanToBytes(obj)
-    } catch {
-      case e: Throwable ⇒
-//        System.out.println("Ignoring: %s".format(e))
-//        for(trace0 ← e.getStackTrace) {
-//          System.out.println("      at: %s.%s(%s:%s)".format(trace0.getClassName, trace0.getMethodName, trace0.getFileName, trace0.getLineNumber))
-//        }
-        return
-    }
-
-    assert(false, "Encoding of %s should have failed".format(obj))
+    helpers.badThrift(obj, thrifter)
   }
 
   protected def sameThrift[A <: AnyRef](x: A, y: A, thrifter: Thrift3r = DefaultThrifter) {
-    val xBytes = thrifter.beanToBytes(x)
-    val yBytes = thrifter.beanToBytes(y)
-    Assert.assertArrayEquals(xBytes, yBytes)
-
-    val x2 = thrifter.bytesToBean(x.getClass, xBytes)
-    val y2 = thrifter.bytesToBean(y.getClass, yBytes)
-    Assert.assertEquals(x2, y2)
+    helpers.sameThrift(x, y, thrifter)
   }
 
   protected def sameJSON[A <: AnyRef](x: A, y: A, thrifter: Thrift3r = DefaultThrifter) {
-    val xJSON = thrifter.beanToJSON(x)
-    val yJSON = thrifter.beanToJSON(y)
-    require(xJSON == yJSON)
-
-    val x2 = thrifter.jsonToBean(x.getClass, xJSON)
-    val y2 = thrifter.jsonToBean(y.getClass, yJSON)
-    require(x2 == y2)
+    helpers.sameJSON(x, y, thrifter)
   }
 
-  protected def same[A <: AnyRef](x: A, y: A, thrifter: Thrift3r = DefaultThrifter) {
-    sameThrift(x, y, thrifter)
-    sameJSON(x, y, thrifter)
+  def same[A <: AnyRef](x: A, y: A, thrifter: Thrift3r = DefaultThrifter) {
+    helpers.same(x, y, thrifter)
   }
 }

@@ -24,15 +24,10 @@ import org.junit.Test
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
 class MiscTest extends BaseFixture {
-  @Test def testClass() {
-    val obj = BeanClass(classOf[MiscTest])
-    good(obj)
-    goodJSON(obj)
-  }
+  @Test def testClass() { good(BeanClass(classOf[MiscTest])) }
 
-  @Test def testOptionIntNone() {
-    badThrift(BeanOptionInt(None))
-  }
+  @Test def testOptionIntNone() { badThrift(BeanOptionInt(None)) }
+
   @Test def testOptionIntSome() { badThrift(BeanOptionInt(Some(1))) }
 
   @Test def testOptionIntRefSome() { good(BeanOptionIntRef(Some(1))) }

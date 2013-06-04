@@ -17,10 +17,9 @@
 package com.ckkloverdos.thrift3r.protocol.thrift
 
 import com.ckkloverdos.thrift3r.codec.Codec
-import com.ckkloverdos.thrift3r.protocol.{OptionProtocol, IntEnumProtocol, StrictFieldsStructProtocol, SizedMapProtocol, SizedSetProtocol, SizedListProtocol, Protocol}
-import org.apache.thrift.protocol.{TType, TMap, TSet, TStruct, TField, TList, TProtocol}
 import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
-import com.ckkloverdos.thrift3r.BinReprType
+import com.ckkloverdos.thrift3r.protocol.{OptionProtocol, IntEnumProtocol, StrictFieldsStructProtocol, SizedMapProtocol, SizedSetProtocol, SizedListProtocol, Protocol}
+import org.apache.thrift.protocol.{TMap, TSet, TStruct, TField, TList, TProtocol}
 
 /**
  *
