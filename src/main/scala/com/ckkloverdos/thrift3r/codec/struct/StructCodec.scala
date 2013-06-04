@@ -19,10 +19,9 @@ package codec
 package struct
 
 import com.ckkloverdos.thrift3r.descriptor.{FieldInfo, StructDescriptor}
-import com.ckkloverdos.thrift3r.protocol.{FieldsByIDStructProtocol, FieldsByNameStructProtocol, StrictFieldsStructProtocol, Protocol}
-import com.google.common.reflect.TypeToken
-import scala.annotation.tailrec
+import com.ckkloverdos.thrift3r.protocol.Protocol
 import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
+import com.google.common.reflect.TypeToken
 
 /**
  *

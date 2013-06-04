@@ -46,7 +46,7 @@ import com.ckkloverdos.thrift3r.protocol.helper.ProtocolHelpers
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case class Thrift3r(
+class Thrift3r(
   userCodecs: Map[Class[_], Codec[_]] = Map(),
   userCollectionDescriptors: Map[JClass, CollectionDescriptor] = Map(),
   userCollectionOrderings: Map[JClass, CollectionOrdering[_, _]] = Map(),

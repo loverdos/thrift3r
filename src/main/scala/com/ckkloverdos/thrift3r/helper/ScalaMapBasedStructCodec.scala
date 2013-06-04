@@ -16,34 +16,33 @@
 
 package com.ckkloverdos.thrift3r.helper
 
-import com.ckkloverdos.thrift3r.codec.{UnsupportedDirectStringTransformations, Codec}
-import com.google.common.reflect.TypeToken
-import com.ckkloverdos.thrift3r.protocol.Protocol
 import com.ckkloverdos.thrift3r.BinReprType
+import com.ckkloverdos.thrift3r.codec.collection.ScalaMapCodec
+import com.ckkloverdos.thrift3r.codec.{UnsupportedDirectStringTransformations, Codec}
+import com.ckkloverdos.thrift3r.protocol.Protocol
+import com.google.common.reflect.TypeToken
+import scala.collection.GenMap
 
 /**
- * Struct codec for string-based objects.
+ * Struct codec for map-based objects.
  *
- * This is useful for classes whose only attribute is a string. In such a case,
- * instead of encoding the `STRUCT` and then the `STRING`, we only encode the latter.
+ * This is useful for classes whose only attribute is a map. In such a case,
+ * instead of encoding the `STRUCT` and then the `MAP`, we only encode the latter.
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-final case class StringBasedStructCodec[T](
+final case class ScalaMapBasedStructCodec[T, A, B](
   typeToken: TypeToken[T],
-  toStringRepr: (T) ⇒ String,
-  fromStringRepr: (String) ⇒ T
-) extends Codec[T] {
+  scalaMapCodec: ScalaMapCodec[A, B, _],
+  toMapRepr: (T) ⇒ GenMap[A, B],
+  fromMapRepr: (GenMap[A, B]) ⇒ T
+) extends Codec[T] with UnsupportedDirectStringTransformations[T] {
 
   def binReprType = BinReprType.STRUCT
 
-  def encode(protocol: Protocol, value: T) = protocol.writeString(toStringRepr(value))
+  def encode(protocol: Protocol, value: T) =
+    scalaMapCodec.encode(protocol, toMapRepr(value))
 
-  def decode(protocol: Protocol) = fromStringRepr(protocol.readString())
-
-  def toDirectString(value: T) = toStringRepr(value)
-
-  def fromDirectString(value: String) = fromStringRepr(value)
-
-  override def hasDirectStringRepresentation = true // by design
+  def decode(protocol: Protocol) =
+    fromMapRepr(scalaMapCodec.decode(protocol))
 }

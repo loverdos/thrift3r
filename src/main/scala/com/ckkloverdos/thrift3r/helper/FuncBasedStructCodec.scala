@@ -26,7 +26,7 @@ import com.google.common.reflect.TypeToken
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-final case class StructFCodec[T](
+final case class FuncBasedStructCodec[T](
   typeToken: TypeToken[T],
   encoder: (Protocol, T) ⇒ Unit,
   decoder: (Protocol) ⇒ T
