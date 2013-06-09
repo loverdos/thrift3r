@@ -27,9 +27,9 @@ import com.google.common.reflect.TypeToken
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case class StructCodec[T](
+case class StructCodec[T <: AnyRef](
   thrifter: Thrift3r,
-  descriptor: StructDescriptor
+  descriptor: StructDescriptor[T]
 ) extends Codec[T] with CodecToString with UnsupportedDirectStringTransformations[T] {
 
   final val fieldInfoByID = for((fieldId, fieldDescr) ← descriptor.fields) yield {

@@ -25,17 +25,17 @@ import scala.collection.immutable
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>
  */
-case class StructDescriptor(
+case class StructDescriptor[T <: AnyRef](
   name: String,
   fullName: String,
   fields: immutable.SortedMap[Short, FieldDescriptor],
-  typeToken: TypeToken[_],
-  constructor: Constructor[_]
+  typeToken: TypeToken[T],
+  constructor: Constructor[T]
 ) extends Descriptor {
 
   final val arity: Short = fields.size.toShort
 
   final val thriftStruct: TStruct = new TStruct(fullName)
 
-  def construct(params: Array[AnyRef]): AnyRef = constructor.newInstance(params:_*).asInstanceOf[AnyRef]
+  def construct(params: Array[AnyRef]): T = constructor.newInstance(params:_*)
 }

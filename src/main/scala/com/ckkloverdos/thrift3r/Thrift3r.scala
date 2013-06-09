@@ -244,19 +244,19 @@ class Thrift3r(
     codec
   }
 
-  def structDescriptorOf(jvmType: JType) = {
-    val javaTypeToken = typeTokenOfType(jvmType)
+  def structDescriptorOf[T <: AnyRef](jvmType: JType): StructDescriptor[T] = {
+    val javaTypeToken = typeTokenOfType(jvmType).asInstanceOf[TypeToken[T]]
     val jvmClass = javaTypeToken.getRawType
 //    println("let structDescriptorOf (%s) =".format(jvmClass))
 
     // If there are more than one constructors, pick the longest
-    val (_, constructorOpt) = jvmClass.getConstructors.foldLeft[(Int, Option[Constructor[_]])]((-1, None)) {
+    val (_, constructorOpt) = jvmClass.getConstructors.foldLeft[(Int, Option[Constructor[T]])]((-1, None)) {
       case (found@(foundNParams, foundOption), constructor) ⇒
         val paramTypes = constructor.getParameterTypes
         val nparams = paramTypes.size
 
         if(nparams > foundNParams) {
-          (nparams, Some(constructor))
+          (nparams, Some(constructor.asInstanceOf[Constructor[T]]))
         } else {
           found
         }
@@ -299,7 +299,7 @@ class Thrift3r(
         }
 //        println("    %s".format(constructor))
 
-        StructDescriptor(
+        StructDescriptor[T](
           name,
           fullName,
           fieldMap,

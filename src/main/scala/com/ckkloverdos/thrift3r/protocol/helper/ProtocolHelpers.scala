@@ -207,9 +207,9 @@ object ProtocolHelpers {
     }
   }
 
-  final def writeStruct[T](
+  final def writeStruct[T <: AnyRef](
     protocol: Protocol,
-    descriptor: StructDescriptor,
+    descriptor: StructDescriptor[T],
     fieldInfoByID: SortedMap[Short, FieldInfo],
     value: T
   ) {
