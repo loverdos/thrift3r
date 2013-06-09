@@ -18,7 +18,6 @@ package com.ckkloverdos.thrift3r.descriptor
 
 import com.google.common.reflect.TypeToken
 import java.lang.reflect.Constructor
-import org.apache.thrift.protocol.TStruct
 import scala.collection.immutable
 
 /**
@@ -34,8 +33,6 @@ case class StructDescriptor[T <: AnyRef](
 ) extends Descriptor {
 
   final val arity: Short = fields.size.toShort
-
-  final val thriftStruct: TStruct = new TStruct(fullName)
 
   def construct(params: Array[AnyRef]): T = constructor.newInstance(params:_*)
 }
