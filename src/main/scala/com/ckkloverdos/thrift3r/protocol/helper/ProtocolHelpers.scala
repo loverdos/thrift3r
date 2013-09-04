@@ -164,8 +164,9 @@ object ProtocolHelpers {
 
     val size = elements.size
     mapProtocol.writeMapBegin(keyCodec, valueCodec, size)
-    for((k, v) ← elements) {
-      mapProtocol.writeMapElement(k, keyCodec, v, valueCodec)
+    elements.foreach {
+      case (k, v) ⇒
+        mapProtocol.writeMapElement(k, keyCodec, v, valueCodec)
     }
     mapProtocol.writeMapEnd()
   }
