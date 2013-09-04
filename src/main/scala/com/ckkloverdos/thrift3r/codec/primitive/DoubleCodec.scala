@@ -27,10 +27,6 @@ import com.ckkloverdos.thrift3r.protocol.Protocol
  */
 case object DoubleCodec extends Codec[Double] with CodecToString {
 
-  /**
-   * The supported [[com.ckkloverdos.thrift3r.BinReprType]],
-   * which is [[com.ckkloverdos.thrift3r.BinReprType#FLOAT64]].
-   */
   final def binReprType = BinReprType.FLOAT64
 
   final def typeToken = typeTokenOfClass(DoubleClass)

@@ -28,10 +28,6 @@ import com.ckkloverdos.thrift3r.protocol.Protocol
  */
 case object IntCodec extends Codec[Int] with CodecToString {
 
-  /**
-   * The supported [[com.ckkloverdos.thrift3r.BinReprType]],
-   * which is [[com.ckkloverdos.thrift3r.BinReprType#INT32]].
-   */
   final def binReprType = BinReprType.INT32
 
   final def typeToken = typeTokenOfClass(IntClass)

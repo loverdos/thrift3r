@@ -27,10 +27,6 @@ import com.google.common.reflect.TypeToken
  */
 case object StringCodec extends Codec[String] with CodecToString {
 
-  /**
-   * The supported [[com.ckkloverdos.thrift3r.BinReprType]],
-   * which is [[com.ckkloverdos.thrift3r.BinReprType#STRING]].
-   */
   final def binReprType = BinReprType.STRING
 
   final def typeToken = new TypeToken[String]{}
