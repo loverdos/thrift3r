@@ -125,6 +125,9 @@ class Thrift3r(
                 ordering,
                 descriptor.builderFactory.asInstanceOf[CollectionBuilderFactory[(Any, Any), GenMap[Any, Any], Ordering[Any]]]
               )
+
+            case Some(ordering) ⇒
+              throw new RuntimeException("Unknown ordering %s".format(ordering))
           }
         }
         else {
