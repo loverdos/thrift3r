@@ -23,18 +23,18 @@ package com.ckkloverdos.thrift3r;
  */
 public enum BinReprType {
     VOID   ((byte)  0),
-    BOOL   ((byte)  1),
-    INT8   ((byte)  2),
-    INT16  ((byte)  3),
-    INT32  ((byte)  4),
-    INT64  ((byte)  5),
-    FLOAT32((byte)  6),
-    FLOAT64((byte)  7),
+    BOOL   ((byte)  1), // Java: boolean
+    INT8   ((byte)  2), // Java: byte
+    INT16  ((byte)  3), // Java: short
+    INT32  ((byte)  4), // Java: int
+    INT64  ((byte)  5), // Java: long
+    FLOAT32((byte)  6), // Java: float
+    FLOAT64((byte)  7), // Java: double
     STRING ((byte)  10),
     SET    ((byte)  20),
     LIST   ((byte)  21),
     MAP    ((byte)  22),
-    OPTION ((byte)  23),
+    OPTION ((byte)  23), // Yes, we support options natively
     ENUM   ((byte)  30), // Simple, Java-like enums
     STRUCT ((byte)  40);
 
