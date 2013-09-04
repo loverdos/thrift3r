@@ -69,7 +69,7 @@
   </issueManagement>
 
   <properties>
-    <scala.version>2.9.1</scala.version>
+    <scala.version>2.10.2</scala.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
   </properties>
@@ -172,7 +172,7 @@
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>scala-maven-plugin</artifactId>
-          <version>3.1.4</version>
+          <version>3.1.5</version>
         <configuration>
           <recompileMode>incremental</recompileMode>
           <scalaVersion>${scala.version}</scalaVersion>
